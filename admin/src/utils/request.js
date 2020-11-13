@@ -6,6 +6,7 @@ import { getToken } from '@/utils/auth'
 // 创建 axios 实例
 const service = axios.create({
     baseURL: process.env.VUE_APP_BASE_API, // url = base url + request url
+    // baseURL: 'http://localhost:3000/admin/',
     // withCredentials: true, // 跨域请求时发送Cookie
     timeout: 5000 // 请求时间
 });
@@ -14,12 +15,11 @@ const service = axios.create({
 service.interceptors.request.use(
     config => {
         // 在发送请求之前
-
         if (store.getters.token) {
             // 让每个请求携带令牌
             // ['X-Token'] 是一个自定义头密钥
             // 请根据实际情况修改
-            config.headers['X-Token'] = getToken()
+            // config.headers['X-Token'] = getToken()
         }
         return config
     },

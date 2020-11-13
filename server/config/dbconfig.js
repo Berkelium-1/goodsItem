@@ -21,6 +21,8 @@ module.exports = {
             conn.query(sql, sqlArr, callBack);
             // 释放连接
             conn.release();
+            // conn.release() 释放连接 不成功时使用以下方法
+            // pool.releaseConnection(conn);
         });
     }
 }

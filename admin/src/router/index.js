@@ -72,22 +72,56 @@ export const constantRoutes = [
     {
         path: '/goods',
         component: Layout,
-        redirect: { name: 'goodList' },
+        redirect: { name: 'goodsList' },
         meta: { title: '商品管理', icon: 'el-icon-info' },
         children: [
             //
             {
-                path: 'goodList',
-                name: 'goodList',
-                component: () => import('@/views/goods/goodList'),
-                meta: { title: '商品列表' },
+                path: 'goodsList',
+                name: 'goodsList',
+                component: () => import('@/views/goods/goodsList'),
+                meta: { title: '商品列表' }
             },
             //
             {
-                path: 'category',
-                name: 'category',
-                component: () => import('@/views/goods/category'),
-                meta: { title: '商品分类' },
+                path: 'addGoods',
+                name: 'addGoods',
+                component: () => import('@/views/goods/goodsForm'),
+                meta: { title: '新建商品' },
+                hidden: true
+            },
+            //
+            {
+                path: 'editGoods/:id',
+                name: 'editGoods',
+                component: () => import('@/views/goods/goodsForm'),
+                props: true,
+                meta: { title: '编辑商品' },
+                hidden: true
+            },
+            //
+            {
+                path: 'categoryList',
+                name: 'categoryList',
+                component: () => import('@/views/goods/categoryList'),
+                meta: { title: '商品分类' }
+            },
+            //
+            {
+                path: 'addCategory',
+                name: 'addCategory',
+                component: () => import('@/views/goods/categoryForm'),
+                meta: { title: '新建分类' },
+                hidden: true
+            },
+            //
+            {
+                path: 'editCategory/:id',
+                name: 'editCategory',
+                component: () => import('@/views/goods/categoryForm'),
+                props: true,
+                meta: { title: '编辑分类' },
+                hidden: true
             },
         ]
     },

@@ -36,7 +36,7 @@ module.exports = {
             warnings: false,
             errors: true
         },
-        before: require('./mock/mock-server.js')
+        before: require('./mock/mock-server.js') // 禁用 mock-server 可以注释这一行
     },
     configureWebpack: {
         // provide the app's title in webpack's name field, so that
@@ -49,16 +49,16 @@ module.exports = {
         }
     },
     chainWebpack(config) {
-        // it can improve the speed of the first screen, it is recommended to turn on preload
+        // it can improve the speed of the first screen, it is recommended to turn on preload 它可以提高第一屏的速度，建议打开预加载
         config.plugin('preload').tap(() => [{
             rel: 'preload',
-            // to ignore runtime.js
+            // to ignore runtime.js 忽略 runtime.js
             // https://github.com/vuejs/vue-cli/blob/dev/packages/@vue/cli-service/lib/config/app.js#L171
             fileBlacklist: [/\.map$/, /hot-update\.js$/, /runtime\..*\.js$/],
             include: 'initial'
         }])
 
-        // when there are many pages, it will cause too many meaningless requests
+        // when there are many pages, it will cause too many meaningless requests 当有很多页面时，会导致太多无意义的请求
         config.plugins.delete('prefetch')
 
         // set svg-sprite-loader
@@ -97,7 +97,7 @@ module.exports = {
                                     name: 'chunk-libs',
                                     test: /[\\/]node_modules[\\/]/,
                                     priority: 10,
-                                    chunks: 'initial' // only package third parties that are initially dependent
+                                    chunks: 'initial' // only package third parties that are initially dependent 仅包装最初依赖的第三方
                                 },
                                 elementUI: {
                                     name: 'chunk-elementUI', // split elementUI into a single package

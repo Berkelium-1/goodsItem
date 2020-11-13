@@ -1,4 +1,3 @@
-import { logout, getInfo } from '@/api/user';
 import { getToken, setToken, removeToken } from '@/utils/auth';
 import { resetRouter } from '@/router';
 import request from '@/utils/request';
@@ -39,7 +38,7 @@ const actions = {
         const { username, password } = userInfo
         return new Promise((resolve, reject) => {
             request({
-                url: '/vue-admin-template/user/login',
+                url: '/user/login',
                 method: 'post',
                 data: {
                     username: username.trim(),
@@ -63,7 +62,7 @@ const actions = {
     getInfo({ commit, state }) {
         return new Promise((resolve, reject) => {
             request({
-                url: '/vue-admin-template/user/info',
+                url: '/user/info',
                 params: { token: state.token }
             }).then(response => {
                 const { data } = response
@@ -89,7 +88,7 @@ const actions = {
     logout({ commit, state }) {
         return new Promise((resolve, reject) => {
             request({
-                url: '/vue-admin-template/user/logout',
+                url: '/user/logout',
                 method: 'post'
             }).then(() => {
                 removeToken() // 删除 token

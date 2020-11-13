@@ -15,23 +15,24 @@ import router from './router'
 import '@/icons' // icon
 import '@/permission' // 权限控制
 
+import request from '@/utils/request'
+
+Vue.prototype.$request = request;
+
 /**
- * If you don't want to use mock-server
- * you want to use MockJs for mock api
- * you can execute: mockXHR()
- * Currently MockJs will be used in the production environment,
- * please remove it before going online ! ! !
- * 
  * 如果您不想使用 mock-server
  * 您希望将 MockJs 用于 mock api
  * 您可以执行: mockXHR()
- * 目前 MockJs 将用于生产环境，
- * 请在上线前删除它！
  */
-if (process.env.NODE_ENV === 'production') {
+if (process.env.NODE_ENV === 'development') { // 用于开发环境
     const { mockXHR } = require('../mock')
     mockXHR()
 }
+
+// if (process.env.NODE_ENV === 'production') {// 用于生产环境
+//     const { mockXHR } = require('../mock')
+//     mockXHR()
+// }
 
 // set ElementUI lang to EN
 // Vue.use(ElementUI, { locale })
