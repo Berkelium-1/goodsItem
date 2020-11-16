@@ -77,7 +77,6 @@ module.exports = {
     },
     // 修改分类
     modifyCategory(req, res, next) {
-        console.log(req.body);
         const { id, category_name } = req.body;
         const sql = `update ?? set category_name=? where id=?;`; // sql语句
         const sqlArr = ['category', category_name, id]; // 放进占位符的变量

@@ -1,4 +1,6 @@
+const path = require('path');
 const express = require('express');
+const { port } = require('./config/config');
 const adminRouter = require('./routes/adminRouter');
 
 const app = express();
@@ -14,11 +16,14 @@ app.all('*', function(req, res, next) {
 });
 
 app.use(express.json());
-// app.use(express.urlencoded({ extended: false }));
+app.use(express.urlencoded({ extended: false }));
 
 // 路由
-app.use('/admin', adminRouter);
+app.use('/public', express.static(path.join(__dirname, '/public'))); // 静态资源路由
 
-app.listen('3000', () => {
-    console.log('http://localhost:3000');
+app.use('/admin', adminRouter); // 后台管理系统路由
+
+app.listen(port, () => {
+    console.log(`http://localhost:${port}`);
+    // console.log(path.join(__dirname, '/public'));
 });
