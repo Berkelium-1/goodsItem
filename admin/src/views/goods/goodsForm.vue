@@ -1,13 +1,18 @@
 <template>
   <div class="goods-form" v-loading="loading">
-    <el-form :model="model" label-width="80px">
-      <el-form-item
-        label="名称:"
-        :rules="{ required: true, message: '请输入活动名称', trigger: 'blur' }"
-        style="width: 50%"
-      >
+    <el-form
+      :model="model"
+      ref="goodsForm"
+      :rules="rules"
+      label-width="100px"
+      inline-message
+    >
+      <!-- 名称 -->
+      <el-form-item label="名称:" style="width: 50%" prop="goods_name">
         <el-input v-model="model.goods_name"></el-input>
       </el-form-item>
+
+      <!-- 图片 -->
       <el-form-item label="图片:">
         <el-upload
           class="avatar-uploader"
@@ -18,33 +23,35 @@
           <img v-if="model.img_src" :src="model.img_src" class="avatar" />
           <i v-else class="el-icon-plus avatar-uploader-icon"></i>
         </el-upload>
-        <span style="color: #aaa">请使用比例 1:1 的正方形图片</span>
+        <span style="color: #aaa">
+          请尽量使用比例 1:1 的正方形图片，且大小不要超过5M
+        </span>
       </el-form-item>
       <el-form-item label="说明:" style="width: 60%">
         <el-input
           type="textarea"
           :rows="5"
-          v-model="model.desc"
+          v-model="model.caption"
           maxlength="100"
           show-word-limit
         ></el-input>
       </el-form-item>
-      <el-form-item
-        label="价格:"
-        :rules="{
-          required: true,
-          regexp: /^\d+(\.(\d){1,2})?$/,
-          message: '格式有误, 请输入数字且最多保留两位小数',
-          trigger: 'input'
-        }"
-        style="width: 30%"
-      >
+
+      <!-- 价格 -->
+      <el-form-item label="价格:" style="width: 30%" prop="price">
         <el-input v-model="model.price">
-          <template slot="append">元</template>
+          <template slot="append">元 </template>
         </el-input>
+        <span style="color: #aaa">0元为免费</span>
+      </el-form-item>
+
+      <!-- 是否上架 -->
+      <el-form-item label="是否上架:" required>
+        <el-radio v-model="model.state" :label="1" border>上架</el-radio>
+        <el-radio v-model="model.state" :label="0" border>暂不上架</el-radio>
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" @click="confirmDown(id)">{{
+        <el-button type="primary" @click="submitForm(id)">{{
           id ? '立即修改' : '立即创建'
         }}</el-button>
         <el-button @click="$router.back()">取消</el-button>
@@ -59,27 +66,53 @@ export default {
     id: {}
   },
   data() {
+    // 验证名称
+    const verifyGoodsName = (rule, value, callback) => {
+      if (!value) {
+        callback(new Error('请输入名称'));
+      } else {
+        callback && callback(); // 这行一定要加 否则不进入表单整体验证
+      }
+    };
+
+    // 验证价格
+    const verifyPrice = (rule, value, callback) => {
+      const reg = /^\d+(\.(\d){1,2})?$/;
+      if (value !== '') {
+        if (!reg.test(value)) {
+          callback(new Error('只能输入数字且最多保留两位小数'));
+        } else {
+          callback && callback(); // 这行一定要加 否则不进入表单整体验证
+        }
+      } else {
+        callback(new Error('请输入价格'));
+      }
+    };
+
     return {
       // 编辑信息集合
       model: {
         goods_name: '',
         img_src: '',
-        desc: '',
-        price: ''
+        caption: '',
+        price: '',
+        state: 1
       },
-      // 表单验证规则
-      // required  是否必填
-      // message 提示信息
-      // trigger 触发条件
+      old_name: '', // 原商品名称
+      // 验证表单
       rules: {
-        name: { required: true, message: '请输入活动名称', trigger: 'blur' },
-        price: [
-          // { required: true, message: '请输入价格', trigger: 'blur' },
+        goods_name: [
           {
             required: true,
-            regexp: /^\d+(\.(\d){1,2})?$/,
-            message: '格式有误, 请输入数字且最多保留两位小数',
-            trigger: 'input'
+            validator: verifyGoodsName,
+            trigger: ['change', 'blur']
+          }
+        ],
+        price: [
+          {
+            required: true,
+            validator: verifyPrice,
+            trigger: ['change', 'blur']
           }
         ]
       },
@@ -93,7 +126,7 @@ export default {
   methods: {
     // 获取要编辑的信息
     async getInfo() {
-      console.log(this.id);
+      this.loading = true;
       const res = await this.$request({
         url: '/goodsInfo',
         params: {
@@ -101,48 +134,55 @@ export default {
         }
       });
       this.model = res.data[0];
+      this.old_name = res.data[0].goods_name;
+      this.loading = false;
     },
-    // 按下创建 或者 修改
-    async confirmDown(id) {
-      return;
-      if (id) {
-        const { category_name } = this.model;
-        // 修改分类
-        const res = await this.$request({
-          url: '/modifyGoods',
-          method: 'post',
-          data: { id, category_name }
-        });
-        if (res.code == 200) {
-          this.$message({ message: '修改成功', type: 'success', center: true });
-          this.$router.push({ name: 'categoryList' });
-        } else {
-          this.$message({ message: '修改失败！', type: 'error', center: true });
+
+    // 创建 或者 修改
+    submitForm(id) {
+      // 验证表单
+      this.$refs['goodsForm'].validate(async (valid) => {
+        if (!valid) {
+          this.$message({ message: '请正确填写必填项！', type: 'error' });
+          return valid; // 表单验证错误则阻断后面代码
         }
-      } else {
-        // 创建分类
-        const res = await this.$request({
-          url: '/addGoods',
-          method: 'put',
-          data: this.model
-        });
-        if (res.code == 200) {
-          this.$message({ message: '创建成功', type: 'success', center: true });
-          this.$router.push({ name: 'categoryList' });
-        } else {
-          this.$message({ message: '创建失败', type: 'error', center: true });
+
+        // 编辑时名称不变 则不执行查询是否同名称
+        if (!(this.old_name && this.model.goods_name == this.old_name)) {
+          // 查询是否同名称的商品
+          const listData = await this.$request({
+            url: '/searchGoods',
+            params: { val: this.model.goods_name }
+          });
+
+          // 如果存在同名称的商品 阻断后面代码
+          if (listData.data.length) {
+            return this.$message({
+              message: '该商品名称已经存在',
+              type: 'error'
+            });
+          }
         }
-      }
+
+        const data = this.model;
+        const url = id ? '/modifyGoods' : '/addGoods'; // 修改 or 创建
+        const method = id ? 'post' : 'put';
+        const res = await this.$request({ url, method, data });
+
+        if (res.code == 200) {
+          const message = id ? '修改成功' : '创建成功';
+          this.$message({ message, type: 'success' });
+          this.$router.push({ name: 'goodsList' });
+        } else {
+          const message = id ? '修改失败！' : '创建失败！';
+          this.$message({ message, type: 'error' });
+        }
+      });
     },
     // 上传图片成功
     uploadImgSuccess(response, file, fileList) {
       console.log(response);
-
       this.model.img_src = response.file.url;
-    },
-    // 验证表单
-    regFrom() {
-      console.log(/^\d+(\.(\d){1,2})?$/.test(this.model.price));
     }
   }
 };
@@ -174,8 +214,8 @@ export default {
       text-align: center;
     }
     .avatar {
-      width: 178px;
-      height: 178px;
+      max-width: 300px;
+      max-height: 300px;
       display: block;
     }
   }

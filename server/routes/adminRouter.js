@@ -7,7 +7,7 @@ const uploadUrl = multer({ dest: path.join(__dirname, '../public/uploadImg') });
 
 
 // 控制器
-const common = require('../controllers/commonController');
+const common = require('../controllers/commonController'); // 公共控制器
 const category = require('../controllers/categoryController');
 const goods = require('../controllers/goodsController');
 

@@ -39,9 +39,10 @@ module.exports = {
     },
     // 新建商品
     addGoods(req, res, next) {
-        const { goods_name } = req.body;
-        const sql = `insert into ?? (??) values(?);`; // sql语句
-        const sqlArr = ['goods', 'goods_name', goods_name]; // 放进占位符的变量
+        let { goods_name, img_src, caption, price, state } = req.body;
+
+        const sql = `insert into ?? (goods_name, img_src, caption, price, state) values (?, ?, ?, ?, ?);`; // sql语句
+        const sqlArr = ['goods', goods_name, img_src, caption, price, state]; // 放进占位符的变量
         const callBack = (err, data) => {
             if (err) {
                 console.log('连接失败：', err);
@@ -78,9 +79,9 @@ module.exports = {
     // 修改商品
     modifyGoods(req, res, next) {
         console.log(req.body);
-        const { id, goods_name } = req.body;
-        const sql = `update ?? set goods_name=? where id=?;`; // sql语句
-        const sqlArr = ['goods', goods_name, id]; // 放进占位符的变量
+        let { id, goods_name, img_src, caption, price, state } = req.body;
+        const sql = `update ?? set goods_name=?, img_src=?, caption=?, price=?, state=? where id=?;`; // sql语句
+        const sqlArr = ['goods', goods_name, img_src, caption, price, state, id]; // 放进占位符的变量
         const callBack = (err, data) => {
             if (err) {
                 console.log('连接失败：', err);

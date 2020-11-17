@@ -21,18 +21,48 @@
       :data="tableData"
       max-height="800"
       style="width: 100%"
+      border
     >
+      <!-- 商品ID -->
       <el-table-column
         prop="id"
         label="商品ID"
         width="180"
         align="center"
       ></el-table-column>
+
+      <!-- 商品名称 -->
       <el-table-column
-        prop="category_name"
+        prop="goods_name"
         label="名称"
+        width="200"
         header-align="left"
       ></el-table-column>
+
+      <!-- 商品图片 -->
+      <el-table-column prop="img_scr" label="图片" width="350" align="center">
+        <template slot-scope="item">
+          <img :src="item.row.img_src" :alt="item.row.img_src" />
+        </template>
+      </el-table-column>
+
+      <!-- 商品价格 -->
+      <el-table-column
+        prop="price"
+        label="价格"
+        width="180"
+        align="center"
+      ></el-table-column>
+
+      <!-- 商品说明 -->
+      <el-table-column
+        prop="caption"
+        label="说明"
+        align="left"
+        header-align="center"
+      ></el-table-column>
+
+      <!-- 操作按钮 -->
       <el-table-column label="操作" width="200" align="center">
         <template slot-scope="item">
           <el-button
@@ -144,6 +174,12 @@ export default {
   }
   .el-table {
     margin-top: 20px;
+    img {
+      margin: auto;
+      max-width: 300px;
+      max-height: 300px;
+      height: auto;
+    }
   }
 }
 </style>
