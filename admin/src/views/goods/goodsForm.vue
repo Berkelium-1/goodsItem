@@ -7,6 +7,24 @@
       label-width="100px"
       inline-message
     >
+      <!-- 分类 -->
+      <el-form-item
+        label="分类:"
+        style="width: 30%"
+        prop="category_id"
+        required
+      >
+        <el-select v-model="model.category_id" filterable placeholder="请选择">
+          <el-option
+            v-for="item in categoryList"
+            :key="item.category_name"
+            :label="item.category_name"
+            :value="item.id"
+          >
+          </el-option>
+        </el-select>
+      </el-form-item>
+
       <!-- 名称 -->
       <el-form-item label="名称:" style="width: 50%" prop="goods_name">
         <el-input v-model="model.goods_name"></el-input>
@@ -19,6 +37,7 @@
           :action="$request.defaults.baseURL + '/uploadImg'"
           :show-file-list="false"
           :on-success="uploadImgSuccess"
+          :data="{ user_id: 25 }"
         >
           <img v-if="model.img_src" :src="model.img_src" class="avatar" />
           <i v-else class="el-icon-plus avatar-uploader-icon"></i>
@@ -92,8 +111,10 @@ export default {
     return {
       // 编辑信息集合
       model: {
+        category_id: 0,
         goods_name: '',
         img_src: '',
+        img_name: '',
         caption: '',
         price: '',
         state: 1
@@ -116,17 +137,21 @@ export default {
           }
         ]
       },
+      // 分类数据
+      categoryList: [],
       loading: false // 加载动画
     };
   },
 
   created() {
+    this.getCategoryList(); // 获取分类
     this.id && this.getInfo(); // 有id就执行函数
   },
   methods: {
     // 获取要编辑的信息
     async getInfo() {
       this.loading = true;
+      // 获取商品信息
       const res = await this.$request({
         url: '/goodsInfo',
         params: {
@@ -135,6 +160,20 @@ export default {
       });
       this.model = res.data[0];
       this.old_name = res.data[0].goods_name;
+      this.loading = false;
+    },
+
+    // 获取分类
+    async getCategoryList() {
+      this.loading = true;
+
+      const category = await this.$request({ url: '/categoryList' });
+      this.categoryList = category.data;
+
+      if (!this.id) {
+        // 如果不是编辑就给个默认值
+        this.model.category_id = category.data[0].id;
+      }
       this.loading = false;
     },
 
@@ -183,6 +222,7 @@ export default {
     uploadImgSuccess(response, file, fileList) {
       console.log(response);
       this.model.img_src = response.file.url;
+      this.model.img_name = response.file.filename;
     }
   }
 };

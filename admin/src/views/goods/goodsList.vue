@@ -36,11 +36,11 @@
         prop="goods_name"
         label="名称"
         width="200"
-        header-align="left"
+        align="center"
       ></el-table-column>
 
       <!-- 商品图片 -->
-      <el-table-column prop="img_scr" label="图片" width="350" align="center">
+      <el-table-column prop="img_scr" label="图片" width="180" align="center">
         <template slot-scope="item">
           <img :src="item.row.img_src" :alt="item.row.img_src" />
         </template>
@@ -54,6 +54,15 @@
         align="center"
       ></el-table-column>
 
+      <!-- 商品状态 -->
+      <el-table-column prop="state" label="状态" width="180" align="center">
+        <template slot-scope="item">
+          <span v-if="item.row.state === 0">未上架</span>
+          <span v-else-if="item.row.state == 1">上架</span>
+          <span v-else-if="item.row.state == 2">下架</span>
+        </template>
+      </el-table-column>
+
       <!-- 商品说明 -->
       <el-table-column
         prop="caption"
@@ -63,25 +72,31 @@
       ></el-table-column>
 
       <!-- 操作按钮 -->
-      <el-table-column label="操作" width="200" align="center">
+      <el-table-column label="操作" width="300" align="center">
         <template slot-scope="item">
           <el-button
             type="text"
             icon="el-icon-edit"
-            @click="
-              $router.push({
-                name: 'editGoods',
-                params: { id: item.row.id }
-              })
-            "
-            >编辑</el-button
+            @click="editGoods(item.row.id)"
           >
+            编辑
+          </el-button>
+
+          <el-button
+            type="text"
+            icon="el-icon-sort"
+            @click="changeState(item.row.state)"
+          >
+            {{ item.row.state === 1 ? '下架' : '上架' }}
+          </el-button>
+
           <el-button
             type="text"
             icon="el-icon-delete"
             @click="delGoods(item.row.id)"
-            >删除</el-button
           >
+            删除
+          </el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -117,6 +132,14 @@ export default {
       });
       this.tableData = res.data;
       this.loading = false; // 关闭加载动画
+    },
+    // 编辑商品
+    editGoods(id) {
+      this.$router.push({ name: 'editGoods', params: { id } });
+    },
+    // 改变上下架状态
+    changeState(state) {
+      console.log(state);
     },
     // 删除商品
     delGoods(id) {
@@ -176,8 +199,8 @@ export default {
     margin-top: 20px;
     img {
       margin: auto;
-      max-width: 300px;
-      max-height: 300px;
+      max-width: 80%;
+      max-height: 100px;
       height: auto;
     }
   }

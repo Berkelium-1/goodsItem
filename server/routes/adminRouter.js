@@ -14,6 +14,7 @@ const goods = require('../controllers/goodsController');
 
 // 公共接口
 router.post('/uploadImg', uploadUrl.single('file'), common.uploadImg); // 图片上传
+// router.post('/uploadImg', common.uploads); // 图片上传
 
 
 // 分类
@@ -21,7 +22,7 @@ router.get('/categoryList', category.getCategoryAll); // 获取分类列表
 router.get('/searchCategory', category.searchCategory); // 分类搜索
 router.put('/addCategory', category.addCategory); // 添加分类
 router.get('/categoryInfo', category.getCategory); // 获取分类信息
-router.post('/modifyCategory', category.modifyCategory); // 修改分类
+router.post('/modifyCategory', category.modifyCategory); // 修改分类 
 router.delete('/delCategory', category.delCategory); // 删除分类
 
 // 商品
