@@ -1,20 +1,10 @@
-const path = require('path');
+/* 后台管理路由文件 */
 const express = require('express');
 const router = express.Router();
 
-const multer = require('multer');
-const uploadUrl = multer({ dest: path.join(__dirname, '../public/uploadImg') }); // 上传地址
-
-
 // 控制器
-const common = require('../controllers/commonController'); // 公共控制器
 const category = require('../controllers/categoryController');
 const goods = require('../controllers/goodsController');
-
-
-// 公共接口
-router.post('/uploadImg', uploadUrl.single('file'), common.uploadImg); // 图片上传
-// router.post('/uploadImg', common.uploads); // 图片上传
 
 
 // 分类

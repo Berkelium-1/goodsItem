@@ -3,6 +3,7 @@ const express = require('express');
 const { port } = require('./config/config');
 const commonRouter = require('./routes/commonRouter');
 const adminRouter = require('./routes/adminRouter');
+const webRouter = require('./routes/webRouter');
 
 const app = express();
 
@@ -22,8 +23,10 @@ app.use(express.urlencoded({ extended: false }));
 // 路由
 app.use('/public', express.static(path.join(__dirname, '/public'))); // 静态资源路由
 
-app.use('/', commonRouter); // 公共路由
+app.use('/admin', commonRouter); // 公共路由
+app.use('/web', commonRouter); // 公共路由
 app.use('/admin', adminRouter); // 后台管理系统路由
+app.use('/web', webRouter); // web端路由
 
 app.listen(port, () => {
     console.log(`http://localhost:${port}`);

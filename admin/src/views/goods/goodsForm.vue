@@ -37,7 +37,6 @@
           :action="$request.defaults.baseURL + '/uploadImg'"
           :show-file-list="false"
           :on-success="uploadImgSuccess"
-          :data="{ user_id: 25 }"
         >
           <img v-if="model.img_src" :src="model.img_src" class="avatar" />
           <i v-else class="el-icon-plus avatar-uploader-icon"></i>
@@ -114,7 +113,6 @@ export default {
         category_id: 0,
         goods_name: '',
         img_src: '',
-        img_name: '',
         caption: '',
         price: '',
         state: 1
@@ -176,7 +174,11 @@ export default {
       }
       this.loading = false;
     },
-
+    // 上传图片成功
+    uploadImgSuccess(response, file, fileList) {
+      console.log(response);
+      this.model.img_src = response.file.url;
+    },
     // 创建 或者 修改
     submitForm(id) {
       // 验证表单
@@ -217,12 +219,6 @@ export default {
           this.$message({ message, type: 'error' });
         }
       });
-    },
-    // 上传图片成功
-    uploadImgSuccess(response, file, fileList) {
-      console.log(response);
-      this.model.img_src = response.file.url;
-      this.model.img_name = response.file.filename;
     }
   }
 };

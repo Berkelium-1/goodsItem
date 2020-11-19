@@ -39,10 +39,9 @@ module.exports = {
     },
     // 新建商品
     addGoods(req, res, next) {
-        let { goods_name, img_src, caption, price, state } = req.body;
-        console.log(img_src);
-        const sql = `insert into ?? (goods_name, img_src, caption, price, state) values (?, ?, ?, ?, ?);`; // sql语句
-        const sqlArr = ['goods', goods_name, img_src, caption, price, state]; // 放进占位符的变量
+        let { goods_name, img_name, img_src, caption, price, state } = req.body;
+        const sql = `insert into ?? (goods_name, img_name, img_src, caption, price, state) values (?, ?, ?, ?, ?, ?);`; // sql语句
+        const sqlArr = ['goods', goods_name, img_name, img_src, caption, price, state]; // 放进占位符的变量
         const callBack = (err, data) => {
             if (err) {
                 console.log('连接失败：', err);
