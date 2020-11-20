@@ -33,6 +33,7 @@
       <!-- 图片 -->
       <el-form-item label="图片:">
         <el-upload
+          ref="imgUpload"
           class="avatar-uploader"
           :action="$request.defaults.baseURL + '/uploadImg'"
           :show-file-list="false"
@@ -45,6 +46,8 @@
           请尽量使用比例 1:1 的正方形图片，且大小不要超过5M
         </span>
       </el-form-item>
+
+      <!-- 说明 -->
       <el-form-item label="说明:" style="width: 60%">
         <el-input
           type="textarea"
@@ -117,7 +120,8 @@ export default {
         price: '',
         state: 1
       },
-      old_name: '', // 原商品名称
+      // 原商品名称
+      old_name: '',
       // 验证表单
       rules: {
         goods_name: [
@@ -137,7 +141,8 @@ export default {
       },
       // 分类数据
       categoryList: [],
-      loading: false // 加载动画
+      // 加载动画
+      loading: false
     };
   },
 
@@ -175,12 +180,14 @@ export default {
       this.loading = false;
     },
     // 上传图片成功
-    uploadImgSuccess(response, file, fileList) {
+    uploadImgSuccess(response, file) {
       console.log(response);
+      console.log(file);
       this.model.img_src = response.file.url;
     },
+
     // 创建 或者 修改
-    submitForm(id) {
+    async submitForm(id) {
       // 验证表单
       this.$refs['goodsForm'].validate(async (valid) => {
         if (!valid) {

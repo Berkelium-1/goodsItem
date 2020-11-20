@@ -1,53 +1,36 @@
+/* 公共控制器 */
 const { baseURL } = require('../config/config');
 const dbConfig = require('../config/dbconfig');
 
-const multer = require('multer');
-let path = require("path");
-//上传文件配置  
-const storage = multer.diskStorage({
-    //文件存储位置  
-    destination: (req, file, cb) => {
-        cb(null, path.join(__dirname, '../uploads'));
-    },
-    //文件名  
-    filename: (req, file, cb) => {
-        console.log(file);
-        cb(null, `${Date.now()}_${Math.ceil(Math.random() * 1000)}_multer.${file.originalname.split('.').pop()}`);
-    }
-});
-const uploadCfg = {
-    storage,
-    limits: {
-        //上传文件的大小限制,单位bytes  
-        fileSize: 1024 * 1024 * 20
-    }
-};
+
 module.exports = {
-    // 处理上传图片
-    uploadImg(req, res, next) {
-        console.log(req.body);
+    // 添加上传图片
+    addUploadImg(req, res, next) {
         console.log(req.file);
+
+        const date = new Date(); // 获取时间
+        const nowDtae = `${date.getFullYear()}-${date.getMonth()+1}-${date.getDate()} ${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`;
+
         const file = req.file;
-        file.url = `${baseURL}/public/uploadImg/${file.filename}`;
-        const responseData = {
-            code: 200,
-            file
-        };
-        res.send(responseData);
-    },
-    uploads(req, res, next) {
-        let upload = multer(uploadCfg).any();
-        upload(req, res, async (err) => {
-            console.log(req.file);
-            console.log(req.body);
-            let uploadFile = req.files[0];
+        file.url = `${baseURL}/public/img/${file.filename}`;
+        const sql = `insert into ?? (filename, path, url, createtime) values (?, ?, ?, ?);`; // sql语句
+        const sqlArr = ['uploads', file.filename, file.path, file.url, nowDtae]; // 放进占位符的变量
+        const callBack = (err, data) => {
             if (err) {
-                res.json({ path: `//uploads/${uploadFile.filename}` });
-                console.log(err);
-                return;
-            };
-            console.log(req.files);
-            res.json({ path: `//uploads/${uploadFile.filename}` });
-        });
+                console.log('连接失败：', err);
+            } else {
+                const responseData = {
+                    code: 200,
+                    file
+                };
+                res.send(responseData);
+            }
+        }
+
+        dbConfig.sqlConnect(sql, sqlArr, callBack);
+    },
+    // 下载
+    download(req, res, next) {
+        req.query.url ? res.download(req.query.url) : res.send({ success: false });
     }
 };

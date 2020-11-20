@@ -1,4 +1,6 @@
 const dbConfig = require('../config/dbconfig');
+const common = require('../util/common');
+
 module.exports = {
     // 获取所有商品
     getGoodsAll(req, res, next) {
@@ -39,18 +41,28 @@ module.exports = {
     },
     // 新建商品
     addGoods(req, res, next) {
-        let { goods_name, img_name, img_src, caption, price, state } = req.body;
-        const sql = `insert into ?? (goods_name, img_name, img_src, caption, price, state) values (?, ?, ?, ?, ?, ?);`; // sql语句
-        const sqlArr = ['goods', goods_name, img_name, img_src, caption, price, state]; // 放进占位符的变量
+        let { category_id, goods_name, img_src, caption, price, state } = req.body;
+        const sql = `insert into ?? (category_id, goods_name, img_src, caption, price, state) values (?, ?, ?, ?, ?, ?);`; // sql语句
+        const sqlArr = ['goods', category_id, goods_name, img_src, caption, price, state]; // 放进占位符的变量
         const callBack = (err, data) => {
             if (err) {
                 console.log('连接失败：', err);
             } else {
-                const responseData = {
-                    code: 200,
-                    data
-                }
-                res.send(responseData);
+                let sql_1 = `delete from ?? where url=?;`; // sql语句
+                let sqlArr_1 = ['uploads', img_src]; // 放进占位符的变量
+                dbConfig.sqlConnect(sql_1, sqlArr_1, (err1, data1) => {
+                    if (err1) {
+                        console.log('连接失败：', err1);
+                    } else {
+                        common.delUploadImg('goods');
+                        const responseData = {
+                            code: 200,
+                            msg: '添加商品成功'
+                        }
+                        res.send(responseData);
+                    }
+                });
+
             }
         }
 
@@ -78,16 +90,16 @@ module.exports = {
     // 修改商品
     modifyGoods(req, res, next) {
         console.log(req.body);
-        let { id, goods_name, img_src, caption, price, state } = req.body;
-        const sql = `update ?? set goods_name=?, img_src=?, caption=?, price=?, state=? where id=?;`; // sql语句
-        const sqlArr = ['goods', goods_name, img_src, caption, price, state, id]; // 放进占位符的变量
+        let { id, category_id, goods_name, img_src, caption, price, state } = req.body;
+        const sql = `update ?? set category_id=? goods_name=?, img_src=?, caption=?, price=?, state=? where id=?;`; // sql语句
+        const sqlArr = ['goods', category_id, goods_name, img_src, caption, price, state, id]; // 放进占位符的变量
         const callBack = (err, data) => {
             if (err) {
                 console.log('连接失败：', err);
             } else {
                 const responseData = {
                     code: 200,
-                    data
+                    msg: '修改商品成功'
                 }
                 res.send(responseData);
             }
@@ -106,13 +118,12 @@ module.exports = {
             } else {
                 const responseData = {
                     code: 200,
-                    data
+                    msg: '删除商品成功'
                 }
                 res.send(responseData);
             }
         }
 
         dbConfig.sqlConnect(sql, sqlArr, callBack);
-    },
-
+    }
 }

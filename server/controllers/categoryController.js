@@ -48,7 +48,7 @@ module.exports = {
             } else {
                 const responseData = {
                     code: 200,
-                    data
+                    msg: '添加分类成功'
                 }
                 res.send(responseData);
             }
@@ -86,7 +86,7 @@ module.exports = {
             } else {
                 const responseData = {
                     code: 200,
-                    data
+                    msg: '修改分类成功'
                 }
                 res.send(responseData);
             }
@@ -105,7 +105,7 @@ module.exports = {
             } else {
                 const responseData = {
                     code: 200,
-                    data
+                    msg: '删除分类成功'
                 }
                 res.send(responseData);
             }
