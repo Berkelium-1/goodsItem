@@ -200,7 +200,7 @@ export default {
           // 查询是否同名称的商品
           const listData = await this.$request({
             url: '/searchGoods',
-            params: { val: this.model.goods_name }
+            params: { keyword: this.model.goods_name }
           });
 
           // 如果存在同名称的商品 阻断后面代码
@@ -245,7 +245,7 @@ export default {
       overflow: hidden;
     }
     .avatar-uploader .el-upload:hover {
-      border-color: #409EFF;
+      border-color: #409eff;
     }
     .avatar-uploader-icon {
       border: 1px dashed #d9d9d9;

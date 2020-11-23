@@ -1,9 +1,11 @@
 const path = require('path');
 const express = require('express');
-const { port } = require('./config/config');
-const commonRouter = require('./routes/commonRouter');
-const adminRouter = require('./routes/adminRouter');
-const webRouter = require('./routes/webRouter');
+
+const { port } = require('./config/config'); // 配置文件
+const commonRouter = require('./routes/commonRouter'); // 公共路由
+const adminRouter = require('./routes/adminRouter'); // 后台路由
+const webRouter = require('./routes/webRouter'); // web端路由
+const schedule = require('./util/schedule'); // 定时任务
 
 const app = express();
 
@@ -27,6 +29,9 @@ app.use('/admin', commonRouter); // 公共路由
 app.use('/web', commonRouter); // 公共路由
 app.use('/admin', adminRouter); // 后台管理系统路由
 app.use('/web', webRouter); // web端路由
+
+// 定时删除图片
+schedule.delImages();
 
 app.listen(port, () => {
     console.log(`http://localhost:${port}`);
