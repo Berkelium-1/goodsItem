@@ -1,48 +1,136 @@
 const dbConfig = require('../config/dbconfig');
-const common = require('../util/common');
 
 module.exports = {
     // 获取商品列表
     getGoodsList(req, res, next) {
-        const { limit } = req.query;
+        let { keyword, category_id, pageSize, current } = req.query;
 
-        let sql = limit ? `select * from ?? limit ?;` : `select * from ??;`; // sql语句
-        let sqlArr = ['goods', parseFloat(limit)]; // 放进占位符的变量 
-        let callback = (err, data) => {
+        category_id = parseFloat(category_id);
+        pageSize = parseFloat(pageSize);
+        current = parseFloat(current);
+
+        const start = current * pageSize - pageSize;
+        const length = pageSize;
+        const sql = `select count(*) from goods where binary (goods_name like ? or id like ?) ${category_id ? 'and category_id='+category_id:''};`; // sql语句
+        const sqlArr = [`%${keyword}%`, `%${keyword}%`]; // 放进占位符的变量 
+        const callback = (err, countData) => {
             if (err) {
-                console.log('连接失败：', err);
-            } else {
-                data.total
+                const responseData = {
+                    code: 500,
+                    msg: 'error'
+                }
+                res.send(responseData);
+                return console.log(err);
+            }
+            const total = countData[0]['count(*)'];
+
+            // 当一条数据都没有时 不执行下方查询代码 节省性能
+            if (!total) {
+                const responseData = {
+                    code: 200,
+                    data: [],
+                    total
+                };
+                res.send(responseData);
+                return total;
+            }
+
+            // 获取模糊查询出来的数据
+            const sql1 = `select * from goods where binary (goods_name like ? or id like ?) ${category_id ? 'and category_id='+category_id:''} limit ?,?;`; // sql语句
+            // const sqlArr1 = [`%${keyword}%`, `%${keyword}%`, 1, 2]; // 放进占位符的变量 
+            const sqlArr1 = [`%${keyword}%`, `%${keyword}%`, start, length]; // 放进占位符的变量 
+            dbConfig.sqlConnect(sql1, sqlArr1, (err, data) => {
+                if (err) {
+                    const responseData = {
+                        code: 500,
+                        msg: 'error'
+                    }
+                    res.send(responseData);
+                    return console.log(err);
+                }
                 const responseData = {
                     code: 200,
                     data,
-                    total: data.length
+                    total
                 }
                 res.send(responseData);
-            }
+            });
         }
 
         dbConfig.sqlConnect(sql, sqlArr, callback);
     },
     // 搜索商品
     searchGoods(req, res, next) {
-        let { keyword, category_id, limit } = req.query;
+        let { keyword, category_id, pageSize } = req.query;
+        console.log(req.query);
+
         category_id = parseFloat(category_id);
-        limit = parseFloat(limit);
-        let sql = '';
-        if (keyword) {
-            sql = category_id ? `select * from ?? where binary id=? or goods_name=? and category_id=? limit ?;` : `select * from ?? where binary id=? or goods_name=? limit ?;`; // sql语句
-        } else {
-            sql = category_id ? `select * from ?? where category_id=? limit ?;` : `select * from ?? limit ?;`; // sql语句
+        pageSize = parseFloat(pageSize);
+
+        const sql = `select count(*) from goods where binary (goods_name like ? or id like ?) ${category_id ? 'and category_id='+category_id:''};`; // sql语句
+        const sqlArr = [`%${keyword}%`, `%${keyword}%`]; // 放进占位符的变量 
+        const callback = (err, countData) => {
+            if (err) {
+                const responseData = {
+                    code: 500,
+                    msg: 'error'
+                }
+                res.send(responseData);
+                return console.log(err);
+            }
+            const total = countData[0]['count(*)'];
+
+            // 当一条数据都没有时 不执行下方查询代码 节省性能
+            if (!total) {
+                const responseData = {
+                    code: 200,
+                    data: [],
+                    total
+                }
+                res.send(responseData);
+                return total;
+            }
+
+            // 获取模糊查询出来的数据
+            const sql1 = `select * from goods where binary (goods_name like ? or id like ?) ${category_id ? 'and category_id='+category_id:''} limit ?;`; // sql语句
+            const sqlArr1 = [`%${keyword}%`, `%${keyword}%`, pageSize]; // 放进占位符的变量 
+            dbConfig.sqlConnect(sql1, sqlArr1, (err, data) => {
+                if (err) {
+                    const responseData = {
+                        code: 500,
+                        msg: 'error'
+                    }
+                    res.send(responseData);
+                    return console.log(err);
+                }
+                const responseData = {
+                    code: 200,
+                    data,
+                    total
+                }
+                res.send(responseData);
+            });
         }
-        const sqlArr = ['goods', keyword || category_id || limit, keyword || limit, category_id || limit, limit]; // 放进占位符的变量 
+
+        dbConfig.sqlConnect(sql, sqlArr, callback);
+    },
+    // 查询是否有重名商品
+    queryRepeatName(req, res, next) {
+        const { goods_name } = req.query;
+        const sql = `select * from goods where goods_name=?`;
+        const sqlArr = [goods_name]; // 放进占位符的变量 
         const callback = (err, data) => {
             if (err) {
-                console.log('连接失败：', err);
+                console.log(err);
+                const responseData = {
+                    code: 500,
+                    msg: 'error'
+                }
+                res.send(responseData);
             } else {
                 const responseData = {
                     code: 200,
-                    data
+                    msg: data.length > 0
                 }
                 res.send(responseData);
             }
@@ -73,7 +161,7 @@ module.exports = {
 
         dbConfig.sqlConnect(sql, sqlArr, callback);
     },
-    // 获取一个商品
+    // 获取一个商品 用于编辑
     getGoods(req, res, next) {
         const { id } = req.query;
         const sql = `select * from ?? where id=?;`; // sql语句

@@ -107,13 +107,16 @@
         </template>
       </el-table-column>
     </el-table>
+
+    <!-- 分页器 -->
     <el-pagination
       background
       :page-size="pageSize"
       :current-page="nowPage"
       layout="prev, pager, next, total"
       :total="pageTotal"
-      :hide-on-single-page="false"
+      hide-on-single-page
+      @current-change="changePage"
     >
     </el-pagination>
   </div>
@@ -129,20 +132,25 @@ export default {
       loading: false, // 加载动画
       tableData: [], // 商品表格
       nowPage: 1, // 当前页
-      pageSize: 10, // 每页显示的条数
+      pageSize: 8, // 每页显示的条数
       pageTotal: 0 // 总条数
     };
   },
   created() {
-    this.getTableData(this.pageSize);
+    this.getTableData(this.keyword, 0, this.pageSize, this.nowPage);
     this.getCategoryList();
   },
   methods: {
     // 获取表格数据
-    async getTableData(limit) {
+    async getTableData(keyword, category_id, pageSize, current) {
       this.loading = true; // 开启加载动画
-      const res = await this.$request({ url: '/goodsList', params: { limit } });
+      const res = await this.$request({
+        url: '/goodsList',
+        params: { keyword, category_id, pageSize, current }
+      });
       this.tableData = res.data;
+      this.pageTotal = res.total;
+      this.nowPage = 1;
       this.loading = false; // 关闭加载动画
     },
 
@@ -153,13 +161,15 @@ export default {
     },
 
     // 搜索商品
-    async searchGoods(keyword, category_id, limit) {
+    async searchGoods(keyword, category_id, pageSize) {
       this.loading = true; // 开启加载动画
       const res = await this.$request({
         url: '/searchGoods',
-        params: { keyword, category_id, limit }
+        params: { keyword, category_id, pageSize }
       });
       this.tableData = res.data;
+      this.pageTotal = res.total;
+      this.nowPage = 1;
       this.loading = false; // 关闭加载动画
     },
     // 编辑商品
@@ -168,7 +178,6 @@ export default {
     },
     // 改变上下架状态
     async changeState(state, id) {
-      console.log(state);
       const res = await this.$request({
         url: '/changeState',
         method: 'post',
@@ -177,7 +186,12 @@ export default {
       if (res.code == 200) {
         const message = state == 1 ? '下架成功' : '上架成功';
         this.$message({ message, type: 'success', center: true });
-        this.searchGoods(this.keyword, this.value, this.pageSize); // 刷新页面
+        this.getTableData(
+          this.keyword,
+          this.value,
+          this.pageSize,
+          this.nowPage
+        ); // 刷新页面
       } else {
         const massage = state == 1 ? '下架失败' : '上架失败';
         this.$message({ message, type: 'error', center: true });
@@ -217,7 +231,9 @@ export default {
         });
     },
     // 翻页
-    changePage() {}
+    changePage(nowPage) {
+      this.getTableData(this.keyword, this.value, this.pageSize, nowPage); // 刷新页面
+    }
   }
 };
 </script>
@@ -256,7 +272,7 @@ export default {
   }
 
   .el-pagination {
-    margin: 0 auto;
+    margin: 50px auto;
     display: flex;
     justify-content: center;
   }

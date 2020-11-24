@@ -1,12 +1,6 @@
 <template>
   <div class="goods-form" v-loading="loading">
-    <el-form
-      :model="model"
-      ref="goodsForm"
-      :rules="rules"
-      label-width="100px"
-      inline-message
-    >
+    <el-form :model="model" ref="goodsForm" :rules="rules" label-width="100px">
       <!-- 分类 -->
       <el-form-item
         label="分类:"
@@ -31,7 +25,7 @@
       </el-form-item>
 
       <!-- 图片 -->
-      <el-form-item label="图片:">
+      <el-form-item label="图片:" class="upload-img">
         <el-upload
           ref="imgUpload"
           class="avatar-uploader"
@@ -42,7 +36,7 @@
           <img v-if="model.img_src" :src="model.img_src" class="avatar" />
           <i v-else class="el-icon-plus avatar-uploader-icon"></i>
         </el-upload>
-        <span style="color: #aaa">
+        <span class="note">
           请尽量使用比例 1:1 的正方形图片，且大小不要超过5M
         </span>
       </el-form-item>
@@ -59,15 +53,15 @@
       </el-form-item>
 
       <!-- 价格 -->
-      <el-form-item label="价格:" style="width: 30%" prop="price">
+      <el-form-item label="价格:" prop="price" class="price">
         <el-input v-model="model.price">
           <template slot="append">元 </template>
         </el-input>
-        <span style="color: #aaa">0元为免费</span>
+        <span>0元为免费</span>
       </el-form-item>
 
       <!-- 是否上架 -->
-      <el-form-item label="是否上架:" required>
+      <el-form-item label="是否上架:" required v-if="!id">
         <el-radio v-model="model.state" :label="1" border>上架</el-radio>
         <el-radio v-model="model.state" :label="0" border>暂不上架</el-radio>
       </el-form-item>
@@ -170,7 +164,15 @@ export default {
     async getCategoryList() {
       this.loading = true;
 
-      const category = await this.$request({ url: '/categoryList' });
+      const category = await this.$request({ url: '/categoryAll' });
+
+      // 如果没有分类请让他先创建分类
+      if (!category.data.length) {
+        this.$router.replace({ name: 'addCategory' });
+        this.$message({ message: '请先创建分类', type: 'info' });
+        return category.data.length;
+      }
+
       this.categoryList = category.data;
 
       if (!this.id) {
@@ -181,8 +183,6 @@ export default {
     },
     // 上传图片成功
     uploadImgSuccess(response, file) {
-      console.log(response);
-      console.log(file);
       this.model.img_src = response.file.url;
     },
 
@@ -198,13 +198,13 @@ export default {
         // 编辑时名称不变 则不执行查询是否同名称
         if (!(this.old_name && this.model.goods_name == this.old_name)) {
           // 查询是否同名称的商品
-          const listData = await this.$request({
-            url: '/searchGoods',
-            params: { keyword: this.model.goods_name }
+          const isRepeatName = await this.$request({
+            url: '/isRepeatGoodsName',
+            params: { goods_name: this.model.goods_name }
           });
 
           // 如果存在同名称的商品 阻断后面代码
-          if (listData.data.length) {
+          if (isRepeatName.msg) {
             return this.$message({
               message: '该商品名称已经存在',
               type: 'error'
@@ -235,31 +235,45 @@ export default {
 .goods-form {
   padding: 20px;
   .el-form {
-    // margin: 0 auto;
     width: 90%;
-    .avatar-uploader .el-upload {
-      border: 1px dashed #d9d9d9;
-      border-radius: 6px;
-      cursor: pointer;
-      position: relative;
-      overflow: hidden;
+    .upload-img {
+      .avatar-uploader .el-upload {
+        border: 1px dashed #d9d9d9;
+        border-radius: 6px;
+        cursor: pointer;
+        position: relative;
+        overflow: hidden;
+      }
+      .avatar-uploader .el-upload:hover {
+        border-color: #409eff;
+      }
+      .avatar-uploader-icon {
+        border: 1px dashed #d9d9d9;
+        font-size: 28px;
+        color: #8c939d;
+        width: 178px;
+        height: 178px;
+        line-height: 178px;
+        text-align: center;
+      }
+      .avatar {
+        max-width: 300px;
+        max-height: 300px;
+        display: block;
+      }
+
+      span.note {
+        color: #aaa;
+      }
     }
-    .avatar-uploader .el-upload:hover {
-      border-color: #409eff;
-    }
-    .avatar-uploader-icon {
-      border: 1px dashed #d9d9d9;
-      font-size: 28px;
-      color: #8c939d;
-      width: 178px;
-      height: 178px;
-      line-height: 178px;
-      text-align: center;
-    }
-    .avatar {
-      max-width: 300px;
-      max-height: 300px;
-      display: block;
+    .price {
+      .el-input {
+        width: 20%;
+      }
+      span {
+        margin-left: 10px;
+        color: #aaa;
+      }
     }
   }
 }

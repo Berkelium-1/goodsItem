@@ -11,9 +11,11 @@
         <el-input
           placeholder="分类ID/名称"
           prefix-icon="el-icon-search"
-          v-model="val"
+          v-model="keyword"
         />
-        <el-button type="primary" @click="searchCategory(val)">搜索</el-button>
+        <el-button type="primary" @click="searchCategory(keyword, pageSize)"
+          >搜索</el-button
+        >
       </label>
     </div>
     <el-table
@@ -55,6 +57,17 @@
         </template>
       </el-table-column>
     </el-table>
+    <!-- 分页器 -->
+    <el-pagination
+      background
+      :page-size="pageSize"
+      :current-page="nowPage"
+      layout="prev, pager, next, total"
+      :total="pageTotal"
+      :hide-on-single-page="false"
+      @current-change="changePage"
+    >
+    </el-pagination>
   </div>
 </template>
 
@@ -62,35 +75,42 @@
 export default {
   data() {
     return {
-      val: '', // 搜索框的值
+      keyword: '', // 搜索框的值
       loading: true,
-      tableData: []
+      tableData: [],
+      nowPage: 1, // 当前页
+      pageSize: 5, // 每页显示的条数
+      pageTotal: 0 // 总条数
     };
   },
   created() {
-    this.getTableData();
+    this.getTableData(this.keyword, this.pageSize, this.nowPage);
   },
   methods: {
     // 获取表格数据
-    async getTableData() {
+    async getTableData(keyword, pageSize, current) {
       this.loading = true; // 开启加载动画
-      const res = await this.$request({ url: '/categoryList' });
+      const res = await this.$request({
+        url: '/categoryList',
+        params: { keyword, pageSize, current }
+      });
       this.tableData = res.data;
+      this.pageTotal = res.total;
       this.loading = false; // 关闭加载动画
     },
     // 搜索分类
-    async searchCategory(val) {
+    async searchCategory(keyword, pageSize) {
       this.loading = true; // 开启加载动画
       const res = await this.$request({
         url: '/searchCategory',
-        params: { val }
+        params: { keyword, pageSize }
       });
       this.tableData = res.data;
       this.loading = false; // 关闭加载动画
     },
     // 删除分类
     delCategory(id) {
-      this.$confirm('删除此分类下的所有商品, 是否继续?', '提示', {
+      this.$confirm('删除此分类和分类下的所有商品, 是否继续?', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
@@ -120,6 +140,10 @@ export default {
             message: '已取消删除'
           });
         });
+    },
+    // 翻页
+    changePage(nowPage) {
+      this.getTableData(this.keyword, this.pageSize, nowPage);
     }
   }
 };
@@ -144,6 +168,11 @@ export default {
   }
   .el-table {
     margin-top: 20px;
+  }
+  .el-pagination {
+    margin: 50px auto;
+    display: flex;
+    justify-content: center;
   }
 }
 </style>
