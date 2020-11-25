@@ -17,7 +17,6 @@ module.exports = {
                 return console.log(err);
 
             }
-
             if (!data.length > 0) {
                 const responseData = {
                     code: 404,
@@ -31,6 +30,7 @@ module.exports = {
 
             const token = jwt.getToken(payload);
 
+
             const responseData = {
                 code: 200,
                 msg: '登录成功',
@@ -40,5 +40,106 @@ module.exports = {
         }
 
         dbConfig.sqlConnect(sql, sqlArr, callback);
-    }
+    },
+    // 验证token
+    verifyToken(req, res, next) {
+        const { token } = req.body;
+
+        // 验证token
+        let result = jwt.verifyToken(token);
+        const { id, account } = result; // 获取id、账号
+
+        if (!(id && account)) {
+            const responseData = {
+                code: 400,
+                msg: '无效的token, 请重新登录'
+            }
+            res.send(responseData);
+            return result;
+        }
+
+        const sql = `select * from administrators where id=? and account=?;`;
+        const sqlArr = [id, account]; // 放进占位符的变量 
+        const callback = (err, data) => {
+            if (err) {
+                const responseData = {
+                    code: 500,
+                    msg: 'error'
+                }
+                res.send(responseData);
+                return err;
+            }
+
+            console.log(data);
+
+            if (data.length == 0) {
+                const responseData = {
+                    code: 404,
+                    msg: '找不到此账号'
+                }
+                res.send(responseData);
+                return false;
+            }
+
+            const responseData = {
+                code: 200,
+                data,
+                msg: 'token有效, 验证成功'
+            }
+            res.send(responseData);
+
+        }
+
+        dbConfig.sqlConnect(sql, sqlArr, callback);
+    },
+    // 获取信息
+    getInfo(req, res, next) {
+        const { token } = req.query;
+
+        // 验证token
+        let result = jwt.verifyToken(token);
+        const { id, account } = result; // 获取id、账号
+        if (!(id && account)) {
+            const responseData = {
+                code: 400,
+                msg: '无效的token, 请重新登录'
+            }
+            res.send(responseData);
+            return result;
+        }
+
+        const sql = `select * from administrators where id=? and account=?;`;
+        const sqlArr = [id, account]; // 放进占位符的变量 
+        const callback = (err, data) => {
+            if (err) {
+                const responseData = {
+                    code: 500,
+                    msg: 'error'
+                }
+                res.send(responseData);
+                return err;
+            }
+
+            if (data.length == 0) {
+                const responseData = {
+                    code: 404,
+                    msg: '找不到此账号'
+                }
+                res.send(responseData);
+                return false;
+            }
+            const { admin_name, power, head_portrait } = data[0];
+            const user = { admin_name, power, head_portrait };
+
+            const responseData = {
+                code: 200,
+                user,
+                msg: '获取成功'
+            }
+            res.send(responseData);
+
+        }
+
+        dbConfig.sqlConnect(sql, sqlArr, callback);
+    },
 };

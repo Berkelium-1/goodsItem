@@ -10,7 +10,7 @@ Target Server Type    : MYSQL
 Target Server Version : 80021
 File Encoding         : 65001
 
-Date: 2020-11-24 18:02:14
+Date: 2020-11-25 18:07:37
 */
 
 SET FOREIGN_KEY_CHECKS=0;
@@ -22,6 +22,7 @@ DROP TABLE IF EXISTS `administrators`;
 CREATE TABLE `administrators` (
   `id` int NOT NULL AUTO_INCREMENT,
   `admin_name` varchar(255) NOT NULL COMMENT '管理员名称',
+  `head_portrait` varchar(255) NOT NULL COMMENT '头像',
   `account` varchar(255) NOT NULL COMMENT '账号',
   `password` varchar(255) NOT NULL COMMENT '密码',
   `power` int NOT NULL DEFAULT '1' COMMENT '权限 0 超级管理员 1普通管理员',
@@ -31,8 +32,8 @@ CREATE TABLE `administrators` (
 -- ----------------------------
 -- Records of administrators
 -- ----------------------------
-INSERT INTO `administrators` VALUES ('1', 'Berkelium', '1922906183', '123456', '0');
-INSERT INTO `administrators` VALUES ('2', '普通', '2225710499', '123456', '1');
+INSERT INTO `administrators` VALUES ('1', 'Berkelium', 'https://wpimg.wallstcn.com/f778738c-e4f8-4870-b634-56703b4acafe.gif', '1922906183', '123456', '0');
+INSERT INTO `administrators` VALUES ('2', '普通', 'https://wpimg.wallstcn.com/f778738c-e4f8-4870-b634-56703b4acafe.gif', '2225710499', '123456', '1');
 
 -- ----------------------------
 -- Table structure for category

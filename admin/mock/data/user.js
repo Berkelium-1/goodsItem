@@ -52,15 +52,16 @@ module.exports = [
         type: 'get',
         response: config => {
             const { token } = config.query
-            const info = users[token]
+            // const info = users[token]
+            console.log(config);
 
             // mock error
-            if (!info) {
-                return {
-                    code: 50008,
-                    message: 'Login failed, unable to get user details.'
-                }
-            }
+            // if (!info) {
+            //     return {
+            //         code: 50008,
+            //         message: 'Login failed, unable to get user details.'
+            //     }
+            // }
 
             return {
                 code: 200,

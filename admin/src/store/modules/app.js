@@ -35,6 +35,7 @@ const actions = {
     toggleSideBar({ commit }) {
         commit('TOGGLE_SIDEBAR');
     },
+    // 关闭侧边栏
     closeSideBar({ commit }, { withoutAnimation }) {
         commit('CLOSE_SIDEBAR', withoutAnimation);
     },

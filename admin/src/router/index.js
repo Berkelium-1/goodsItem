@@ -149,10 +149,10 @@ const createRouter = () => new Router({
 
 const router = createRouter()
 
-// Detail see: https://github.com/vuejs/vue-router/issues/1234#issuecomment-357941465
+// 详情请看: https://github.com/vuejs/vue-router/issues/1234#issuecomment-357941465
 export function resetRouter() {
     const newRouter = createRouter()
-    router.matcher = newRouter.matcher // reset router
+    router.matcher = newRouter.matcher // 重置 router
 }
 
 export default router

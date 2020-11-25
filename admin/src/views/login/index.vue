@@ -12,15 +12,15 @@
         <h3 class="title">微考证后台管理系统</h3>
       </div>
 
-      <el-form-item prop="username">
+      <el-form-item prop="account">
         <span class="svg-container">
           <svg-icon icon-class="user" />
         </span>
         <el-input
-          ref="username"
-          v-model="loginForm.username"
-          placeholder="Username"
-          name="username"
+          ref="account"
+          v-model="loginForm.account"
+          placeholder="请输入账号"
+          name="account"
           type="text"
           tabindex="1"
           auto-complete="on"
@@ -36,16 +36,14 @@
           ref="password"
           v-model="loginForm.password"
           :type="passwordType"
-          placeholder="Password"
+          placeholder="请输入密码"
           name="password"
           tabindex="2"
           auto-complete="on"
           @keyup.enter.native="handleLogin"
         />
         <span class="show-pwd" @click="showPwd">
-          <svg-icon
-            :icon-class="passwordType === 'password' ? 'eye' : 'eye-open'"
-          />
+          <svg-icon :icon-class="passwordType ? 'eye' : 'eye-open'" />
         </span>
       </el-form-item>
 
@@ -59,27 +57,26 @@
       </el-button>
 
       <div class="tips">
-        <span style="margin-right: 20px">username: admin</span>
-        <span> password: 111111</span>
+        <span style="margin-right: 20px">账号: admin</span>
+        <span> 密码: 111111</span>
       </div>
     </el-form>
   </div>
 </template>
 
 <script>
-import { validUsername } from '@/utils/validate';
-
 export default {
   name: 'Login',
   data() {
     // 验证账号
-    const validateUsername = (rule, value, callback) => {
-      if (!validUsername(value)) {
-        callback(new Error('请输入正确的账号'));
+    const validateAccount = (rule, value, callback) => {
+      if (!value) {
+        callback(new Error('请输入账号'));
       } else {
         callback();
       }
     };
+
     // 验证密码
     const validatePassword = (rule, value, callback) => {
       if (value.length < 6) {
@@ -90,20 +87,21 @@ export default {
     };
     return {
       loginForm: {
-        username: 'admin',
-        password: '111111'
+        account: '1922906183',
+        password: '123456'
       },
+      // 验证表单规则
       loginRules: {
-        username: [
-          { required: true, trigger: 'blur', validator: validateUsername }
+        account: [
+          { required: true, trigger: 'blur', validator: validateAccount }
         ],
         password: [
           { required: true, trigger: 'blur', validator: validatePassword }
         ]
       },
-      loading: false,
-      passwordType: 'password',
-      redirect: undefined
+      loading: false, // 按钮加载动画
+      passwordType: 'password', // 控制密码框类型
+      redirect: null // 重定向
     };
   },
   watch: {
@@ -111,37 +109,44 @@ export default {
       handler: function (route) {
         this.redirect = route.query && route.query.redirect;
       },
-      immediate: true
+      immediate: true // 立即
     }
   },
   methods: {
+    // 密码框眼睛
     showPwd() {
+      // 显示 or 隐藏 密码
       if (this.passwordType === 'password') {
         this.passwordType = '';
       } else {
         this.passwordType = 'password';
       }
+
       this.$nextTick(() => {
-        this.$refs.password.focus();
+        // 在 DOM 更新后调用
+        this.$refs['password'].focus(); // 密码框获取焦点
       });
     },
+
+    // 登录
     handleLogin() {
+      // 验证表单
       this.$refs.loginForm.validate((valid) => {
-        if (valid) {
-          this.loading = true;
-          this.$store
-            .dispatch('user/login', this.loginForm)
-            .then(() => {
-              this.$router.push({ path: this.redirect || '/' });
-              this.loading = false;
-            })
-            .catch(() => {
-              this.loading = false;
-            });
-        } else {
-          console.log('error submit!!');
-          return false;
-        }
+        if (!valid) return valid; // 表单验证错误 阻断后面代码
+
+        this.loading = true;
+        this.$store
+          .dispatch('user/login', this.loginForm)
+          .then((res) => {
+            this.$message({ message: '登录成功', type: 'success' });
+            this.$router.push({ path: this.redirect || '/' });
+            this.loading = false;
+          })
+          .catch((err) => {
+            console.log(err);
+            this.$message({ message: '登录出错', type: 'error' });
+            this.loading = false;
+          });
       });
     }
   }
@@ -149,9 +154,6 @@ export default {
 </script>
 
 <style lang="scss">
-/* 修复input 背景不协调 和光标变色 */
-/* Detail see https://github.com/PanJiaChen/vue-element-admin/pull/927 */
-
 $bg: #283443;
 $light_gray: #fff;
 $cursor: #fff;

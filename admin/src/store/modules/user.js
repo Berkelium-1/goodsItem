@@ -29,29 +29,29 @@ const mutations = {
     // 设置用户头像 在状态里
     SET_AVATAR: (state, avatar) => {
         state.avatar = avatar;
+    },
+    // 设置用户权限 在状态里
+    SET_POWER: (state, power) => {
+        state.power = power;
     }
 }
 
 const actions = {
-    login({ commit }, userInfo) {
+    login({ commit }, data) {
         // 登录
-        const { username, password } = userInfo
         return new Promise((resolve, reject) => {
             request({
-                url: '/user/login',
+                url: '/login',
                 method: 'post',
-                data: {
-                    username: username.trim(),
-                    password
-                }
+                data
             }).then(response => {
-                const { data } = response
+                const { token } = response;
 
-                commit('SET_TOKEN', data.token);
+                commit('SET_TOKEN', token);
 
-                setToken(data.token) // 存储token
+                setToken(token) // 存储token
 
-                resolve()
+                resolve(response);
             }).catch(error => {
                 reject(error)
             })
@@ -62,22 +62,23 @@ const actions = {
     getInfo({ commit, state }) {
         return new Promise((resolve, reject) => {
             request({
-                url: '/user/info',
+                url: '/getInfo',
                 params: { token: state.token }
             }).then(response => {
-                const { data } = response
+                const { user } = response
+                console.log(response);
 
-                if (!data) {
+                if (response.code != 200) {
                     return reject('验证失败，请重新登录');
                 }
 
-                const { name, avatar } = data
+                const { admin_name, power, head_portrait } = user
 
-                commit('SET_NAME', name);
+                commit('SET_NAME', admin_name);
+                commit('SET_POWER', power);
+                commit('SET_AVATAR', head_portrait);
 
-                commit('SET_AVATAR', avatar);
-
-                resolve(data);
+                resolve(user);
             }).catch(error => {
                 reject(error)
             })
@@ -86,22 +87,9 @@ const actions = {
 
     // 退出登录
     logout({ commit, state }) {
-        return new Promise((resolve, reject) => {
-            request({
-                url: '/user/logout',
-                method: 'post'
-            }).then(() => {
-                removeToken() // 删除 token
-
-                resetRouter()
-
-                commit('RESET_STATE')
-
-                resolve()
-            }).catch(error => {
-                reject(error)
-            })
-        })
+        removeToken(); // 删除 token
+        resetRouter(); // 重置路由
+        commit('RESET_STATE');
     },
 
     // 删除 token

@@ -10,6 +10,8 @@ const goods = require('../controllers/goodsController');
 
 // 登录
 router.post('/login', login.login); // 登录 
+router.post('/verifyToken', login.verifyToken); // 验证token
+router.get('/getInfo', login.getInfo); // 获取信息
 
 // 分类
 router.get('/categoryAll', category.categoryAll); // 获取所有分类
