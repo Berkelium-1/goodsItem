@@ -7,7 +7,8 @@ const getDefaultState = () => {
     return {
         token: getToken() || '',
         name: '', // 用户名称
-        avatar: '' // 用户头像
+        avatar: '', // 用户头像
+        role: null // 用户权限
     }
 }
 
@@ -31,8 +32,8 @@ const mutations = {
         state.avatar = avatar;
     },
     // 设置用户权限 在状态里
-    SET_POWER: (state, power) => {
-        state.power = power;
+    SET_ROLE: (state, role) => {
+        state.role = role;
     }
 }
 
@@ -65,20 +66,17 @@ const actions = {
                 url: '/getInfo',
                 params: { token: state.token }
             }).then(response => {
-                const { user } = response
-                console.log(response);
-
                 if (response.code != 200) {
                     return reject('验证失败，请重新登录');
                 }
 
-                const { admin_name, power, head_portrait } = user
+                const { nickname, role, avatar } = response.user;
 
-                commit('SET_NAME', admin_name);
-                commit('SET_POWER', power);
-                commit('SET_AVATAR', head_portrait);
+                commit('SET_NAME', nickname);
+                commit('SET_ROLE', role);
+                commit('SET_AVATAR', avatar);
 
-                resolve(user);
+                resolve(response.user);
             }).catch(error => {
                 reject(error)
             })

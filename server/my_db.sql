@@ -10,30 +10,42 @@ Target Server Type    : MYSQL
 Target Server Version : 80021
 File Encoding         : 65001
 
-Date: 2020-11-25 18:07:37
+Date: 2020-12-02 17:57:10
 */
 
 SET FOREIGN_KEY_CHECKS=0;
 
 -- ----------------------------
--- Table structure for administrators
+-- Table structure for accounts
 -- ----------------------------
-DROP TABLE IF EXISTS `administrators`;
-CREATE TABLE `administrators` (
+DROP TABLE IF EXISTS `accounts`;
+CREATE TABLE `accounts` (
   `id` int NOT NULL AUTO_INCREMENT,
-  `admin_name` varchar(255) NOT NULL COMMENT '管理员名称',
-  `head_portrait` varchar(255) NOT NULL COMMENT '头像',
   `account` varchar(255) NOT NULL COMMENT '账号',
   `password` varchar(255) NOT NULL COMMENT '密码',
-  `power` int NOT NULL DEFAULT '1' COMMENT '权限 0 超级管理员 1普通管理员',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- ----------------------------
--- Records of administrators
+-- Records of accounts
 -- ----------------------------
-INSERT INTO `administrators` VALUES ('1', 'Berkelium', 'https://wpimg.wallstcn.com/f778738c-e4f8-4870-b634-56703b4acafe.gif', '1922906183', '123456', '0');
-INSERT INTO `administrators` VALUES ('2', '普通', 'https://wpimg.wallstcn.com/f778738c-e4f8-4870-b634-56703b4acafe.gif', '2225710499', '123456', '1');
+INSERT INTO `accounts` VALUES ('1', '1922906183', '123456');
+INSERT INTO `accounts` VALUES ('2', '2225710499', '123456');
+
+-- ----------------------------
+-- Table structure for adminroles
+-- ----------------------------
+DROP TABLE IF EXISTS `adminroles`;
+CREATE TABLE `adminroles` (
+  `role_id` int NOT NULL AUTO_INCREMENT COMMENT '角色id',
+  `role_name` varchar(20) NOT NULL COMMENT '角色名称',
+  `role_desc` varchar(100) DEFAULT NULL COMMENT '角色描述',
+  PRIMARY KEY (`role_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='角色表';
+
+-- ----------------------------
+-- Records of adminroles
+-- ----------------------------
 
 -- ----------------------------
 -- Table structure for category
@@ -43,7 +55,7 @@ CREATE TABLE `category` (
   `id` int NOT NULL AUTO_INCREMENT,
   `category_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '类别',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=21 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=21 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='分类表';
 
 -- ----------------------------
 -- Records of category
@@ -61,19 +73,39 @@ INSERT INTO `category` VALUES ('19', '分类8');
 INSERT INTO `category` VALUES ('20', '分类9');
 
 -- ----------------------------
+-- Table structure for firstmenu
+-- ----------------------------
+DROP TABLE IF EXISTS `firstmenu`;
+CREATE TABLE `firstmenu` (
+  `first_menu_id` int NOT NULL AUTO_INCREMENT COMMENT '一级菜单id',
+  `path` varchar(100) NOT NULL,
+  `name` varchar(50) DEFAULT NULL,
+  `component` varchar(80) DEFAULT NULL,
+  `redirect` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `title` varchar(50) DEFAULT NULL,
+  `icon` varchar(50) DEFAULT NULL,
+  PRIMARY KEY (`first_menu_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='一级菜单';
+
+-- ----------------------------
+-- Records of firstmenu
+-- ----------------------------
+INSERT INTO `firstmenu` VALUES ('1', '/rbac', null, null, 'noRedirect', '权限管理', 'el-icon-cpu');
+
+-- ----------------------------
 -- Table structure for goods
 -- ----------------------------
 DROP TABLE IF EXISTS `goods`;
 CREATE TABLE `goods` (
   `id` int NOT NULL AUTO_INCREMENT,
-  `category_id` int NOT NULL COMMENT '分类id',
+  `category_id` int NOT NULL COMMENT '分类id 关联分类表',
   `goods_name` varchar(255) NOT NULL COMMENT '商品名称',
   `img_src` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT '商品图片',
   `caption` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT '商品说明',
   `price` decimal(10,2) NOT NULL COMMENT '商品价格',
   `state` int NOT NULL DEFAULT '0' COMMENT '上下架状态：0未上架，1上架，2下架',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=26 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=26 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='商品表';
 
 -- ----------------------------
 -- Records of goods
@@ -102,6 +134,77 @@ CREATE TABLE `order` (
 -- ----------------------------
 
 -- ----------------------------
+-- Table structure for rightlist
+-- ----------------------------
+DROP TABLE IF EXISTS `rightlist`;
+CREATE TABLE `rightlist` (
+  `right_id` int NOT NULL AUTO_INCREMENT COMMENT '权限id',
+  `right_name` varchar(20) DEFAULT NULL,
+  `right_code` varchar(20) DEFAULT NULL COMMENT '权限编码',
+  `second_menu_id` int NOT NULL COMMENT '二级菜单id 关联二级菜单表',
+  PRIMARY KEY (`right_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='所有权限列表';
+
+-- ----------------------------
+-- Records of rightlist
+-- ----------------------------
+
+-- ----------------------------
+-- Table structure for rolerights
+-- ----------------------------
+DROP TABLE IF EXISTS `rolerights`;
+CREATE TABLE `rolerights` (
+  `role_right_id` int NOT NULL AUTO_INCREMENT COMMENT '角色权限id',
+  `role_id` int NOT NULL COMMENT '角色id 关联角色表',
+  `right_id` int NOT NULL COMMENT '权限id',
+  PRIMARY KEY (`role_right_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='角色--权限表（中间表）';
+
+-- ----------------------------
+-- Records of rolerights
+-- ----------------------------
+
+-- ----------------------------
+-- Table structure for secondmenu
+-- ----------------------------
+DROP TABLE IF EXISTS `secondmenu`;
+CREATE TABLE `secondmenu` (
+  `second_menu_id` int NOT NULL AUTO_INCREMENT COMMENT '二级菜单id',
+  `first_menu_id` int NOT NULL COMMENT '一级菜单id 关联一级菜单表',
+  `path` varchar(100) NOT NULL,
+  `name` varchar(50) DEFAULT NULL,
+  `component` varchar(80) NOT NULL,
+  `redirect` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `title` varchar(50) DEFAULT NULL,
+  `icon` varchar(50) DEFAULT NULL,
+  PRIMARY KEY (`second_menu_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='二级菜单表';
+
+-- ----------------------------
+-- Records of secondmenu
+-- ----------------------------
+INSERT INTO `secondmenu` VALUES ('1', '1', 'ctrl', 'Ctrl', '@/views/rbac/ctrl', '', '权限控制', '');
+INSERT INTO `secondmenu` VALUES ('2', '1', 'rbacUser', 'RbacUser', '@/views/rbac/rbacUser', '', '用户权限', '');
+
+-- ----------------------------
+-- Table structure for sysadmins
+-- ----------------------------
+DROP TABLE IF EXISTS `sysadmins`;
+CREATE TABLE `sysadmins` (
+  `admin_id` int NOT NULL AUTO_INCREMENT COMMENT '管理员id',
+  `admin_name` varchar(50) NOT NULL COMMENT '姓名',
+  `login_account` varchar(50) NOT NULL COMMENT '登录账号',
+  `login_password` varchar(18) NOT NULL COMMENT '登录密码',
+  `role_id` int NOT NULL COMMENT '角色id 关联角色表',
+  `status` int NOT NULL DEFAULT '1' COMMENT '账号状态',
+  PRIMARY KEY (`admin_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='管理员表';
+
+-- ----------------------------
+-- Records of sysadmins
+-- ----------------------------
+
+-- ----------------------------
 -- Table structure for uploadimgs
 -- ----------------------------
 DROP TABLE IF EXISTS `uploadimgs`;
@@ -112,7 +215,7 @@ CREATE TABLE `uploadimgs` (
   `createtime` datetime NOT NULL COMMENT '上传时间',
   `state` int NOT NULL DEFAULT '0' COMMENT '使用状态：0未使用，1使用中',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=44 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=44 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='图片上传表';
 
 -- ----------------------------
 -- Records of uploadimgs
@@ -142,3 +245,21 @@ INSERT INTO `uploadimgs` VALUES ('40', 'G:\\lhp study\\goodsItem\\server\\public
 INSERT INTO `uploadimgs` VALUES ('41', 'G:\\lhp study\\goodsItem\\server\\public\\img\\5d80b0a88aad0ef0626cdd00f295da20', 'http://localhost:3000/public/img/5d80b0a88aad0ef0626cdd00f295da20', '2020-11-24 10:02:57', '0');
 INSERT INTO `uploadimgs` VALUES ('42', 'G:\\lhp study\\goodsItem\\server\\public\\img\\5b561d5837c910ab52b47dc118e17983', 'http://localhost:3000/public/img/5b561d5837c910ab52b47dc118e17983', '2020-11-24 10:04:15', '1');
 INSERT INTO `uploadimgs` VALUES ('43', 'G:\\lhp study\\goodsItem\\server\\public\\img\\52e46bff0901bc0f4a99bf6f54078b2c', 'http://localhost:3000/public/img/52e46bff0901bc0f4a99bf6f54078b2c', '2020-11-24 11:26:07', '1');
+
+-- ----------------------------
+-- Table structure for userinfo
+-- ----------------------------
+DROP TABLE IF EXISTS `userinfo`;
+CREATE TABLE `userinfo` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `account_id` int NOT NULL COMMENT '账号id',
+  `nickname` varchar(255) NOT NULL COMMENT '昵称',
+  `avatar` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT '头像',
+  `role` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '权限角色',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- ----------------------------
+-- Records of userinfo
+-- ----------------------------
+INSERT INTO `userinfo` VALUES ('1', '1', '111', 'https://avatars1.githubusercontent.com/u/53506299?s=460&u=2f6d9228d75f3cf26497165e07379b317683e57d&v=4', 'admin');

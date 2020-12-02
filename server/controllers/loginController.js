@@ -5,7 +5,7 @@ module.exports = {
     // 登录
     login(req, res, next) {
         const { account, password } = req.body;
-        const sql = `select id, account from administrators where account=? and password=?`;
+        const sql = `select id, account from accounts where account=? and password=?`;
         const sqlArr = [account, password]; // 放进占位符的变量 
         const callback = (err, data) => {
             if (err) {
@@ -58,7 +58,7 @@ module.exports = {
             return result;
         }
 
-        const sql = `select * from administrators where id=? and account=?;`;
+        const sql = `select * from accounts where id=? and account=?;`;
         const sqlArr = [id, account]; // 放进占位符的变量 
         const callback = (err, data) => {
             if (err) {
@@ -108,7 +108,8 @@ module.exports = {
             return result;
         }
 
-        const sql = `select * from administrators where id=? and account=?;`;
+        // 账号表验证是否有此账号
+        const sql = `select * from accounts where id=? and account=?;`;
         const sqlArr = [id, account]; // 放进占位符的变量 
         const callback = (err, data) => {
             if (err) {
@@ -128,15 +129,17 @@ module.exports = {
                 res.send(responseData);
                 return false;
             }
-            const { admin_name, power, head_portrait } = data[0];
-            const user = { admin_name, power, head_portrait };
 
-            const responseData = {
-                code: 200,
-                user,
-                msg: '获取成功'
-            }
-            res.send(responseData);
+            // 获取用户消息
+            dbConfig.sqlConnect(`select * from userInfo where account_id=?;`, [id], (err, userData) => {
+                const user = userData[0];
+                const responseData = {
+                    code: 200,
+                    user,
+                    msg: '获取成功'
+                }
+                res.send(responseData);
+            });
 
         }
 

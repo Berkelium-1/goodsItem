@@ -15,9 +15,10 @@
                 <label>name:</label>
                 {{ name }}
               </div>
-              <div class="power">
-                <label>power:</label>
-                {{ power == 1 ? '管理员' : '超级管理员' }}
+
+              <div class="role">
+                <label>role:</label>
+                {{ role }}
               </div>
             </el-col>
           </el-row>
@@ -30,10 +31,13 @@
 <script>
 import { mapGetters } from 'vuex';
 // import 'element-ui/lib/theme-chalk/display.css';
-
+location.search;
 export default {
+  data() {
+    return {};
+  },
   computed: {
-    ...mapGetters(['name', 'power', 'avatar'])
+    ...mapGetters(['name', 'role', 'avatar'])
   }
 };
 </script>
@@ -60,13 +64,12 @@ export default {
       flex-direction: column;
       justify-content: center;
       .name,
-      .power {
+      .role {
         margin: 5px 0;
         font-size: 20px;
         label {
           display: inline-block;
-          width: 20%;
-          // text-align: right;
+          width: 25%;
           margin-right: 5px;
         }
       }
