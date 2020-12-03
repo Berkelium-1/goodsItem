@@ -62,6 +62,68 @@ export const constantRouterMap = [
         }]
     },
 
+
+
+
+    // 外部链接
+    // {
+    //     path: 'external-link',
+    //     component: Layout,
+    //     children: [{
+    //         path: 'https://www.baidu.com',
+    //         meta: { title: '外部链接', icon: 'link' }
+    //     }]
+    // },
+
+    // // 404 页必须放在末尾 !!!
+    // { path: '*', redirect: '/404', hidden: true }
+]
+
+const createRouter = () => new Router({
+    // mode: 'history', // require service support
+    scrollBehavior: () => ({ y: 0 }),
+    routes: constantRouterMap
+})
+
+const router = createRouter()
+
+// 详情请看: https://github.com/vuejs/vue-router/issues/1234#issuecomment-357941465
+export function resetRouter() {
+    const newRouter = createRouter()
+    router.matcher = newRouter.matcher // 重置 router
+}
+
+export const asyncRouterMap = [
+    //
+    {
+        path: '/rbac',
+        component: Layout,
+        redirect: 'noRedirect',
+        meta: { title: '权限管理', icon: 'el-icon-cpu' },
+        children: [
+            //
+            {
+                path: 'ctrl',
+                name: 'Ctrl',
+                component: () => import('@/views/rbac/ctrl'),
+                meta: { title: '权限控制' },
+            },
+            //
+            {
+                path: 'rbacUser',
+                name: 'RbacUser',
+                component: () => import('@/views/rbac/rbacUser'),
+                meta: { title: '用户权限' },
+            },
+            //
+            {
+                path: 'adminRoles',
+                name: 'AdminRoles',
+                component: () => import('@/views/rbac/adminRoles'),
+                meta: { title: '角色权限' },
+            },
+        ]
+    },
     //
     {
         path: '/user',
@@ -132,63 +194,8 @@ export const constantRouterMap = [
             },
         ]
     },
-
-
-    // 外部链接
-    // {
-    //     path: 'external-link',
-    //     component: Layout,
-    //     children: [{
-    //         path: 'https://www.baidu.com',
-    //         meta: { title: '外部链接', icon: 'link' }
-    //     }]
-    // },
-
-    // // 404 页必须放在末尾 !!!
-    // { path: '*', redirect: '/404', hidden: true }
-]
-
-const createRouter = () => new Router({
-    // mode: 'history', // require service support
-    scrollBehavior: () => ({ y: 0 }),
-    routes: constantRouterMap
-})
-
-const router = createRouter()
-
-// 详情请看: https://github.com/vuejs/vue-router/issues/1234#issuecomment-357941465
-export function resetRouter() {
-    const newRouter = createRouter()
-    router.matcher = newRouter.matcher // 重置 router
-}
-
-export const asyncRouterMap = [
-    //
-    {
-        path: '/rbac',
-        component: Layout,
-        redirect: 'noRedirect',
-        meta: { title: '权限管理', icon: 'el-icon-cpu' },
-        children: [
-            //
-            {
-                path: 'ctrl',
-                name: 'Ctrl',
-                component: () => import('@/views/rbac/ctrl'),
-                meta: { title: '权限控制' },
-            },
-            //
-            {
-                path: 'rbacUser',
-                name: 'RbacUser',
-                component: () => import('@/views/rbac/rbacUser'),
-                meta: { title: '用户权限' },
-            }
-        ]
-    },
     // 404 页必须放在末尾 !!!
     { path: '*', redirect: '/404', hidden: true }
 ]
-
 
 export default router

@@ -70,13 +70,13 @@ const actions = {
                     return reject('验证失败，请重新登录');
                 }
 
-                const { nickname, role, avatar } = response.user;
+                const { admin_name, avatar } = response.user_info;
 
-                commit('SET_NAME', nickname);
-                commit('SET_ROLE', role);
+                commit('SET_NAME', admin_name);
+                // commit('SET_ROLE', roles);
                 commit('SET_AVATAR', avatar);
 
-                resolve(response.user);
+                resolve(response.user_info);
             }).catch(error => {
                 reject(error)
             })

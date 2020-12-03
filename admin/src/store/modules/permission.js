@@ -27,29 +27,29 @@ const permission = {
         GenerateRoutes({ commit }, data) { // 生成路由
             return new Promise(resolve => {
                 const { roles } = data; // roles是个数组
-                // const accessedRouters = asyncRouterMap.filter(v => {
+                const accessedRouters = asyncRouterMap.filter(v => {
+                    return true;
+                    if (hasPermission(roles, v)) {
 
-                //     if (hasPermission(roles, v)) {
+                        if (v.children && v.children.length > 0) {
+                            v.children = v.children.filter(child => {
+                                if (hasPermission(roles, child)) {
+                                    return child;
+                                }
+                                return false;
+                            });
+                            return v;
+                        } else {
+                            return v;
+                        }
 
-                //         if (v.children && v.children.length > 0) {
-                //             v.children = v.children.filter(child => {
-                //                 if (hasPermission(roles, child)) {
-                //                     return child;
-                //                 }
-                //                 return false;
-                //             });
-                //             return v;
-                //         } else {
-                //             return v;
-                //         }
+                    }
 
-                //     }
+                    return false;
+                });
 
-                //     return false;
-                // });
-
-                // commit('SET_ROUTERS', accessedRouters);
-                commit('SET_ROUTERS', asyncRouterMap);
+                commit('SET_ROUTERS', accessedRouters);
+                // commit('SET_ROUTERS', asyncRouterMap);
 
                 resolve();
             })
