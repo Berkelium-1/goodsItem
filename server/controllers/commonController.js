@@ -2,7 +2,17 @@
 const { baseURL } = require('../config/config');
 const dbConfig = require('../config/dbconfig');
 
+
 module.exports = {
+    async test(req, res, next) {
+        let rr = null;
+        // 测试数据库连接 300 次
+        for (let i = 0; i < 300; i++) {
+            console.log(i);
+            rr = await dbConfig.sqlConnect(`select * from sys_admins;`, []);
+        }
+        res.send(rr);
+    },
     // 添加上传图片
     addUploadImg(req, res, next) {
         // console.log(req.file);
@@ -16,7 +26,7 @@ module.exports = {
         const sqlArr = [file.path, file.url, nowDtae]; // 放进占位符的变量
         const callback = (err, data) => {
             if (err) {
-                console.log('连接失败：', err);
+                console.log('添加上传图片：', err);
             } else {
                 const responseData = {
                     code: 200,

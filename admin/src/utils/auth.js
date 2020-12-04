@@ -17,18 +17,3 @@ export function removeToken() {
     // return Cookies.remove(TokenKey)
     return localStorage.removeItem(TokenKey);
 }
-
-export function hasPermission(role, metaRole) { // 判断是否有权限
-    let hasPermission = false;
-    const type = typeof(metaRole);
-    if (type == 'string') {
-        return role === metaRole;
-    }
-    for (let i = 0; i < metaRole.length; i++) {
-        if (role == metaRole[i]) {
-            hasPermission = true;
-            break;
-        }
-    }
-    return hasPermission;
-}

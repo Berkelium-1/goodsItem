@@ -15,11 +15,6 @@
                 <label>name:</label>
                 {{ name }}
               </div>
-
-              <div class="role">
-                <label>role:</label>
-                {{ role }}
-              </div>
             </el-col>
           </el-row>
         </el-card>
@@ -37,7 +32,7 @@ export default {
     return {};
   },
   computed: {
-    ...mapGetters(['name', 'role', 'avatar'])
+    ...mapGetters(['name', 'avatar'])
   }
 };
 </script>
@@ -63,8 +58,7 @@ export default {
       display: flex;
       flex-direction: column;
       justify-content: center;
-      .name,
-      .role {
+      .name {
         margin: 5px 0;
         font-size: 20px;
         label {

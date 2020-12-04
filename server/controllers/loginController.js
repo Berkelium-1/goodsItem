@@ -27,7 +27,6 @@ module.exports = {
             }
 
             const payload = JSON.parse(JSON.stringify(data[0])); // 转化为纯对象
-            console.log(payload);
 
             const token = jwt.getToken(payload);
 
@@ -114,21 +113,75 @@ module.exports = {
         }
 
         const user_info = sys_admins_data[0];
+        user_info.role_name = [];
 
         const sys_admin_roles_data = await dbConfig.sqlConnect(`select role_id from sys_admin_roles where admin_id=?;`, [admin_id]); // 查询 管理员--角色（中间表）
 
-        let roles = [];
+        let right_id_all = []; // 定义一个数组存放角色拥有的所有权限id
+
         for (let i = 0; i < sys_admin_roles_data.length; i++) {
-            let role_id = sys_admin_roles_data[i]['role_id'];
-            let admin_roles_data = await dbConfig.sqlConnect(`select role_name from admin_roles where role_id=?;`, [role_id]); // 查询 角色表
-            let role_name = admin_roles_data[0]['role_name'];
-            roles.push(role_name);
+            const role_id = sys_admin_roles_data[i]['role_id']; // 获取角色id
+
+            const admin_roles_data = await dbConfig.sqlConnect(`select * from admin_roles where role_id=?;`, [role_id]); // 查询 角色表
+
+            user_info['role_name'].push(admin_roles_data[0]['role_name']); // 获取角色名称
+
+            const role_root = admin_roles_data[0]['role_root']; // 获取角色最高权限状态
+            user_info['role_root'] = role_root;
+
+            let right_list_data = await dbConfig.sqlConnect(`select right_id from right_list where right_type='router';`, []); // 查询 权限表 所有路由权限id
+            for (let i = 0; i < right_list_data.length; i++) {
+                right_list_data[i] = right_list_data[i]['right_id']; // 去除对象改为只有right_id的值
+            }
+
+            if (role_root === 1) { // 如果拥有最高权限
+                right_id_all = right_list_data;
+                break; // 跳出循环节省性能
+            }
+
+            let role_rights_data = await dbConfig.sqlConnect(`select right_id from role_rights where role_id=?;`, [role_id]); // 查询 角色--权限表
+            for (let i = 0; i < role_rights_data.length; i++) {
+                role_rights_data[i] = role_rights_data[i]['right_id']; // 去除对象改为只有right_id的值
+            }
+
+            // 当前遍历 角色 所拥有的所有 权限id
+            const admin_roles_right_id_all = role_rights_data.filter(item => right_list_data.some(v => v === item));
+
+            right_id_all.push(...admin_roles_right_id_all);
+        }
+
+        // 去除重复的权限id
+        right_id_all = [...new Set(right_id_all)];
+
+        const second_menu_id_all = [];
+
+        for (let i = 0; i < right_id_all.length; i++) {
+            const right_id = right_id_all[i]; // 获取权限id
+            const right_list_data = await dbConfig.sqlConnect(`select second_menu_id from right_list where right_id=? and right_type='router';`, [right_id]); // 查询 权限表 菜单id
+            second_menu_id_all.push(right_list_data[0]['second_menu_id']);
+        }
+
+        const router_roles = [];
+
+        for (let i = 0; i < second_menu_id_all.length; i++) {
+            const second_menu_id = second_menu_id_all[i];
+            const second_menu_data = await dbConfig.sqlConnect(`select * from second_menu where second_menu_id=?;`, [second_menu_id]); // 查询 二级菜单表 
+
+            const first_menu_id = second_menu_data[0]['first_menu_id'];
+            const first_menu_data = await dbConfig.sqlConnect(`select * from first_menu where first_menu_id=?;`, [first_menu_id]); // 查询 一级级菜单表
+
+            const first_path = first_menu_data[0]['path'];
+            const path = second_menu_data[0]['path'];
+
+
+            router_roles.push({ first_path, path });
+
         }
 
         const responseData = {
             code: 200,
             user_info,
-            roles,
+            router_roles,
             msg: '获取成功'
         }
 

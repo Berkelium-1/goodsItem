@@ -163,7 +163,7 @@ module.exports = {
         const sqlArr = ['category', 'category_name', category_name]; // 放进占位符的变量
         const callback = (err, data) => {
             if (err) {
-                console.log('连接失败：', err);
+                console.log('新建分类：', err);
             } else {
                 const responseData = {
                     code: 200,
@@ -182,7 +182,7 @@ module.exports = {
         const sqlArr = ['category', id]; // 放进占位符的变量
         const callback = (err, data) => {
             if (err) {
-                console.log('连接失败：', err);
+                console.log('获取一个分类：', err);
             } else {
                 const responseData = {
                     code: 200,
@@ -201,7 +201,7 @@ module.exports = {
         const sqlArr = ['category', category_name, id]; // 放进占位符的变量
         const callback = (err, data) => {
             if (err) {
-                console.log('连接失败：', err);
+                console.log('修改分类：', err);
             } else {
                 const responseData = {
                     code: 200,
@@ -220,7 +220,7 @@ module.exports = {
         const sqlArr = ['category', id]; // 放进占位符的变量
         const callback = (err, data) => {
             if (err) {
-                console.log('连接失败：', err);
+                console.log('删除分类：', err);
             } else {
                 const responseData = {
                     code: 200,

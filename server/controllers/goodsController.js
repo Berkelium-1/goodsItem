@@ -168,7 +168,7 @@ module.exports = {
         const sqlArr = ['goods', id]; // 放进占位符的变量
         const callback = (err, data) => {
             if (err) {
-                console.log('连接失败：', err);
+                console.log('获取一个商品：', err);
             } else {
                 const responseData = {
                     code: 200,
@@ -229,7 +229,7 @@ module.exports = {
         const sqlArr = ['goods', id]; // 放进占位符的变量
         const callback = (err, data) => {
             if (err) {
-                console.log('连接失败：', err);
+                console.log('删除商品：', err);
             } else {
                 dbConfig.sqlConnect(`delete from ?? where id=?;`, sqlArr, err => {
                     // 修改上传图片表 的图片状态

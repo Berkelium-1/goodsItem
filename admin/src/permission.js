@@ -26,16 +26,17 @@ router.beforeEach(async (to, from, next) => {
             next({ path: '/' })
             NProgress.done();
         } else {
-            // const hasGetUserInfo = store.getters.roles;
-            const hasGetUserInfo = store.getters.name;
+            const hasGetUserInfo = store.getters.router_roles;
 
             if (!hasGetUserInfo) { // 没有用户信息
                 try {
                     // 获取用户信息
                     await store.dispatch('user/getInfo');
+                    const roles = store.getters.router_roles;
+                    const root = store.getters.role_root;
 
                     // 生成权限路由
-                    await store.dispatch('GenerateRoutes', { roles: 'admin' });
+                    await store.dispatch('GenerateRoutes', { roles, root });
 
                     // 添加权限路由表
                     router.addRoutes(store.getters.addRouters);
@@ -46,9 +47,10 @@ router.beforeEach(async (to, from, next) => {
                     // 删除令牌并转到登录页面重新登录
                     await store.dispatch('user/resetToken');
 
-                    Message.error(error || '获取用户信息错误');
+                    Message.error(error || '验证失败，请重新登录！');
 
-                    next(`/login?redirect=${to.path}`);
+                    // next(`/login?redirect=${to.path}`);
+                    next('/login');
 
                     NProgress.done();
                 }

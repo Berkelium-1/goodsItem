@@ -8,7 +8,8 @@ const getDefaultState = () => {
         token: getToken() || '',
         name: '', // 用户名称
         avatar: '', // 用户头像
-        role: null // 用户权限
+        router_roles: null, // 用户路由权限
+        role_root: 0 // 用户是否有最高权限
     }
 }
 
@@ -31,10 +32,14 @@ const mutations = {
     SET_AVATAR: (state, avatar) => {
         state.avatar = avatar;
     },
-    // 设置用户权限 在状态里
-    SET_ROLE: (state, role) => {
-        state.role = role;
-    }
+    // 设置用户路由权限 在状态里
+    SET_ROUTER_ROLE: (state, router_roles) => {
+        state.router_roles = router_roles;
+    },
+    // 设置用户是否有最高权限 在状态里
+    SET_ROLE_ROOT: (state, role_root) => {
+        state.role_root = role_root;
+    },
 }
 
 const actions = {
@@ -70,13 +75,16 @@ const actions = {
                     return reject('验证失败，请重新登录');
                 }
 
-                const { admin_name, avatar } = response.user_info;
+                const { admin_name, avatar, role_root } = response.user_info;
+                const { router_roles } = response;
 
                 commit('SET_NAME', admin_name);
-                // commit('SET_ROLE', roles);
+                commit('SET_ROUTER_ROLE', router_roles);
                 commit('SET_AVATAR', avatar);
+                commit('SET_ROLE_ROOT', role_root);
 
-                resolve(response.user_info);
+
+                resolve(response);
             }).catch(error => {
                 reject(error)
             })

@@ -35,7 +35,7 @@ import Layout from '@/layout'
  * 没有权限要求的基页
  * 可以访问所有角色
  */
-export const constantRouterMap = [
+export const constantRouterMap = [ // 无权限控制的路由 
     // 登录页
     {
         path: '/login',
@@ -74,9 +74,6 @@ export const constantRouterMap = [
     //         meta: { title: '外部链接', icon: 'link' }
     //     }]
     // },
-
-    // // 404 页必须放在末尾 !!!
-    // { path: '*', redirect: '/404', hidden: true }
 ]
 
 const createRouter = () => new Router({
@@ -93,7 +90,7 @@ export function resetRouter() {
     router.matcher = newRouter.matcher // 重置 router
 }
 
-export const asyncRouterMap = [
+export const asyncRouterMap = [ // 异步加载的路由 有权限控制
     //
     {
         path: '/rbac',
@@ -104,14 +101,14 @@ export const asyncRouterMap = [
             //
             {
                 path: 'ctrl',
-                name: 'Ctrl',
+                name: 'ctrl',
                 component: () => import('@/views/rbac/ctrl'),
                 meta: { title: '权限控制' },
             },
             //
             {
                 path: 'rbacUser',
-                name: 'RbacUser',
+                name: 'rbacUser',
                 component: () => import('@/views/rbac/rbacUser'),
                 meta: { title: '用户权限' },
             },
@@ -121,9 +118,10 @@ export const asyncRouterMap = [
                 name: 'AdminRoles',
                 component: () => import('@/views/rbac/adminRoles'),
                 meta: { title: '角色权限' },
-            },
+            }
         ]
     },
+
     //
     {
         path: '/user',

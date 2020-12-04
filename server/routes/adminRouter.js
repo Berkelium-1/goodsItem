@@ -6,7 +6,10 @@ const router = express.Router();
 const login = require('../controllers/loginController');
 const category = require('../controllers/categoryController');
 const goods = require('../controllers/goodsController');
+const common = require('../controllers/commonController');
 
+// test
+router.get('/test', common.test); // 测试
 
 // 登录
 router.post('/login', login.login); // 登录 
