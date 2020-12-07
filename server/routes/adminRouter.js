@@ -3,10 +3,11 @@ const express = require('express');
 const router = express.Router();
 
 // 控制器
+const common = require('../controllers/commonController');
 const login = require('../controllers/loginController');
+const permission = require('../controllers/permissionController');
 const category = require('../controllers/categoryController');
 const goods = require('../controllers/goodsController');
-const common = require('../controllers/commonController');
 
 // test
 router.get('/test', common.test); // 测试
@@ -15,6 +16,10 @@ router.get('/test', common.test); // 测试
 router.post('/login', login.login); // 登录 
 router.post('/verifyToken', login.verifyToken); // 验证token
 router.get('/getInfo', login.getInfo); // 获取信息
+
+router.get('/permissionRouter', permission.permissionRouter); // 获取权限路由 path
+router.put('/addPermissionRouter', permission.addPermissionRouter); // 添加权限路由
+
 
 // 分类
 router.get('/categoryAll', category.categoryAll); // 获取所有分类

@@ -7,7 +7,7 @@
       @toggleClick="toggleSideBar"
     />
 
-    <!-- 头部导航 -->
+    <!-- 面包屑导航 -->
     <breadcrumb class="breadcrumb-container" />
 
     <div class="right-menu">

@@ -1,8 +1,6 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 
-import store from '@/store/index'
-
 Vue.use(Router)
 
 /* Layout */
@@ -127,12 +125,13 @@ export const asyncRouterMap = [ // 异步加载的路由 有权限控制
         path: '/user',
         component: Layout,
         redirect: 'noRedirect',
-        // meta: { title: '用户管理', icon: 'user' },
+        meta: { title: '用户管理', icon: 'user', breadcrumb: false },
+
         children: [{
             path: 'user',
             name: 'User',
             component: () => import('@/views/user/index'),
-            meta: { title: '用户管理', icon: 'user' },
+            meta: { title: '用户管理' },
         }]
     },
     //
@@ -191,6 +190,20 @@ export const asyncRouterMap = [ // 异步加载的路由 有权限控制
                 hidden: true
             },
         ]
+    },
+    //
+    {
+        path: '/article',
+        component: Layout,
+        redirect: 'noRedirect',
+        meta: { title: '文章管理', icon: 'user', breadcrumb: false },
+        breadcrumb: false,
+        children: [{
+            path: 'articleList',
+            name: 'articleList',
+            component: () => import('@/views/article/articleList'),
+            meta: { title: '文章列表' },
+        }]
     },
     // 404 页必须放在末尾 !!!
     { path: '*', redirect: '/404', hidden: true }

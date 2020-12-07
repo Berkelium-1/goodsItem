@@ -5,17 +5,19 @@ const permission = {
 
     state: {
         routers: constantRouterMap,
-        addRouters: []
+        addRouters: [],
+        rbac_router: asyncRouterMap.filter(v => v.path != '*') // 过滤 * 重定向 所有权限路由
     },
 
     mutations: {
         SET_ROUTERS: (state, routers) => {
             state.addRouters = routers;
-            state.routers = constantRouterMap.concat(routers);
+            state.routers = constantRouterMap.concat(routers); // 合并普通路由数组和权限路由数组
         }
     },
     actions: {
-        GenerateRoutes({ commit }, data) { // 生成路由
+        // 生成路由
+        GenerateRoutes({ commit }, data) {
             return new Promise(resolve => {
                 const { roles, root } = data; // roles是个数组
 

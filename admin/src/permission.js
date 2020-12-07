@@ -71,5 +71,5 @@ router.beforeEach(async (to, from, next) => {
 })
 
 router.afterEach(() => {
-    NProgress.done() // 结束进度条
-})
+    NProgress.done(); // 结束进度条
+});

@@ -166,7 +166,6 @@ module.exports = {
         for (let i = 0; i < second_menu_id_all.length; i++) {
             const second_menu_id = second_menu_id_all[i];
             const second_menu_data = await dbConfig.sqlConnect(`select * from second_menu where second_menu_id=?;`, [second_menu_id]); // 查询 二级菜单表 
-
             const first_menu_id = second_menu_data[0]['first_menu_id'];
             const first_menu_data = await dbConfig.sqlConnect(`select * from first_menu where first_menu_id=?;`, [first_menu_id]); // 查询 一级级菜单表
 
