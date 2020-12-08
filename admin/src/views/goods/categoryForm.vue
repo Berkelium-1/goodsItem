@@ -34,7 +34,7 @@ export default {
   },
   data() {
     // 验证名称
-    const verifyGoodsName = (rule, value, callback) => {
+    const verifyCategoryName = (rule, value, callback) => {
       if (!value) {
         callback(new Error('请输入名称'));
       } else {
@@ -53,7 +53,7 @@ export default {
         category_name: [
           {
             required: true,
-            validator: verifyGoodsName,
+            validator: verifyCategoryName,
             trigger: ['change', 'blur']
           }
         ]

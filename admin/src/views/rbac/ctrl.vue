@@ -9,7 +9,6 @@
             :default-checked-keys="default_checked"
             default-expand-all
             highlight-current
-            default-expand-all
           >
             <template slot-scope="{ node, data }">
               <div class="custom-tree-node">

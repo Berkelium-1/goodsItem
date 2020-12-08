@@ -6,6 +6,7 @@ const router = express.Router();
 const common = require('../controllers/commonController');
 const login = require('../controllers/loginController');
 const permission = require('../controllers/permissionController');
+const adminRoles = require('../controllers/adminRolesController');
 const category = require('../controllers/categoryController');
 const goods = require('../controllers/goodsController');
 
@@ -17,8 +18,14 @@ router.post('/login', login.login); // 登录
 router.post('/verifyToken', login.verifyToken); // 验证token
 router.get('/getInfo', login.getInfo); // 获取信息
 
+// 权限
 router.get('/permissionRouter', permission.permissionRouter); // 获取权限路由 path
 router.put('/addPermissionRouter', permission.addPermissionRouter); // 添加权限路由
+
+// 角色
+router.get('/getAdminRoles', adminRoles.getAdminRoles); // 获取角色
+router.get('/getRight', adminRoles.getRight); // 获取权限
+router.put('/addRole', adminRoles.addRole); // 新建角色
 
 
 // 分类

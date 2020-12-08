@@ -113,27 +113,44 @@ export const asyncRouterMap = [ // 异步加载的路由 有权限控制
             //
             {
                 path: 'adminRoles',
-                name: 'AdminRoles',
+                name: 'adminRoles',
                 component: () => import('@/views/rbac/adminRoles'),
                 meta: { title: '角色权限' },
+            },
+            //
+            {
+                path: 'addAdminRole',
+                name: 'addAdminRole',
+                component: () => import('@/views/rbac/adminRoleForm'),
+                meta: { title: '新建角色' },
+                hidden: true
+            },
+            //
+            {
+                path: 'editAdminRole/:id',
+                name: 'editAdminRole',
+                props: true,
+                component: () => import('@/views/rbac/adminRoleForm'),
+                meta: { title: '编辑角色' },
+                hidden: true
             }
         ]
     },
 
     //
-    {
-        path: '/user',
-        component: Layout,
-        redirect: 'noRedirect',
-        meta: { title: '用户管理', icon: 'user', breadcrumb: false },
+    // {
+    //     path: '/user',
+    //     component: Layout,
+    //     redirect: 'noRedirect',
+    //     meta: { title: '用户管理', icon: 'user', breadcrumb: false },
 
-        children: [{
-            path: 'user',
-            name: 'User',
-            component: () => import('@/views/user/index'),
-            meta: { title: '用户管理' },
-        }]
-    },
+    //     children: [{
+    //         path: 'user',
+    //         name: 'User',
+    //         component: () => import('@/views/user/index'),
+    //         meta: { title: '用户管理' },
+    //     }]
+    // },
     //
     {
         path: '/goods',
