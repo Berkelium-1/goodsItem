@@ -1,10 +1,10 @@
 const dbConfig = require('../config/dbconfig');
 
 module.exports = {
-    // 获取角色
-    async getAdminRoles(req, res, next) {
-        const admin_roles_data = await dbConfig.sqlConnect(`select * from admin_roles`, []);
-        const data = admin_roles_data;
+    // 获取管理员数据
+    async getSysAdmins(req, res, next) {
+        const sys_admin_data = await dbConfig.sqlConnect(`select admin_id, admin_name, status, avatar, admin_root from sys_admins`, []);
+        const data = sys_admin_data;
         const responseData = {
             code: 200,
             data

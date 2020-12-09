@@ -32,7 +32,12 @@
       </el-form-item>
 
       <!-- 角色权限 -->
-      <el-form-item label="角色权限:" class="role-right" style="width: 60%">
+      <el-form-item
+        label="角色权限:"
+        class="role-right"
+        style="width: 60%"
+        v-if="!model.role_root"
+      >
         <el-tabs type="card">
           <el-tab-pane>
             <span slot="label">路由权限</span>
@@ -84,7 +89,8 @@ export default {
       // 编辑信息集合
       model: {
         role_name: '',
-        role_desc: ''
+        role_desc: '',
+        role_root: 0
       },
       old_name: '',
       loading: false, // 加载动画
@@ -106,29 +112,42 @@ export default {
   },
 
   created() {
-    this.id && this.getInfo(); // 有id就执行函数
-    this.getRight();
+    this.init();
   },
   methods: {
+    // 初始化内容
+    async init() {
+      this.loading = true;
+      this.id && (await this.getInfo()); // 有id就执行函数
+      await this.getRight();
+      this.loading = false;
+    },
+
+    // 获取权限信息
     async getRight() {
       const res = await this.$request({ url: '/getRight' });
       this.routerTreeData = res.router_roles; // 路由权限设置
     },
+
     // 获取要编辑的信息
     async getInfo() {
       const res = await this.$request({
-        url: '/categoryInfo',
+        url: '/roleInfo',
         params: {
-          id: this.id
+          role_id: this.id
         }
       });
-      this.model = res.data[0];
-      this.old_name = res.data[0].category_name;
+      this.model = res.info;
+      this.old_name = res.info.role_name;
+      this.router_default_checked = res.router_rights;
     },
+
     // 按下创建 或者 修改
     async submitForm(id) {
       // 验证表单
       this.$refs['roleForm'].validate(async (valid) => {
+        this.loading = true;
+
         if (!valid) {
           this.$message({ message: '请正确填写必填项！', type: 'error' });
           return valid; // 表单验证错误则阻断后面代码
@@ -138,8 +157,8 @@ export default {
         if (!(this.old_name && this.model.role_name == this.old_name)) {
           // 查询是否同名称
           const isRepeatName = await this.$request({
-            url: '/isRepeatCategoryName',
-            params: { category_name: this.model.category_name }
+            url: '/isRepeatRoleName',
+            params: { role_name: this.model.role_name }
           });
 
           // 如果存在同名称的分类 阻断后面代码
@@ -147,7 +166,6 @@ export default {
             return this.$message({ message: '此角色已存在', type: 'error' });
           }
         }
-
         const routerCheckedNodes = this.$refs['routerTree'].getCheckedNodes();
         const router_rights = []; // 所有的路由权限id
 
@@ -157,12 +175,12 @@ export default {
           }
         });
 
-        const url = id ? '/modifyCategory' : '/addRole'; // 修改角色 or 创建角色
+        const url = id ? '/modifyRole' : '/addRole'; // 修改角色 or 创建角色
         const method = id ? 'post' : 'put';
         const { role_name, role_desc } = this.model;
         const data = { role_name, role_desc, router_rights };
 
-        if (id) data.id = id;
+        if (id) data.role_id = id;
 
         const res = await this.$request({ url, method, data });
 
@@ -174,6 +192,7 @@ export default {
           const message = id ? '修改失败' : '创建失败';
           this.$message({ message, type: 'error', center: true });
         }
+        this.loading = false;
       });
     }
   }

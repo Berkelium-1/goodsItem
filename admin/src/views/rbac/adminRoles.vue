@@ -43,12 +43,20 @@
             @click="
               $router.push({
                 name: 'editAdminRole',
-                params: { id: item.row.id }
+                params: { id: item.row.role_id }
               })
             "
-            >编辑</el-button
           >
-          <el-button type="text" icon="el-icon-delete">删除</el-button>
+            编辑
+          </el-button>
+          <el-button
+            type="text"
+            icon="el-icon-delete"
+            @click="delRole(item.row.role_id)"
+            v-if="!item.row.role_root"
+          >
+            删除
+          </el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -76,6 +84,33 @@ export default {
       const res = await this.$request({ url: '/getAdminRoles' });
       this.tableData = res.data;
       this.loading = false;
+    },
+    delRole(role_id) {
+      this.$confirm('删除此角色会使关联此角色的用户失去此角色的权限', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      })
+        .then(async () => {
+          const res = await this.$request({
+            url: '/delRole',
+            method: 'delete',
+            data: { role_id }
+          });
+          if (res.code == 200) {
+            this.$message({ message: '删除成功', type: 'success' });
+            this.getAdminRoles();
+          } else {
+            this.$message({ message: '删除失败', type: 'error' });
+          }
+        })
+        .catch(() => {
+          // 点击取消
+          this.$message({
+            type: 'info',
+            message: '已取消删除'
+          });
+        });
     }
   }
 };

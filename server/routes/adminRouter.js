@@ -6,6 +6,7 @@ const router = express.Router();
 const common = require('../controllers/commonController');
 const login = require('../controllers/loginController');
 const permission = require('../controllers/permissionController');
+const sysAdmin = require('../controllers/sysAdminController');
 const adminRoles = require('../controllers/adminRolesController');
 const category = require('../controllers/categoryController');
 const goods = require('../controllers/goodsController');
@@ -22,10 +23,20 @@ router.get('/getInfo', login.getInfo); // 获取信息
 router.get('/permissionRouter', permission.permissionRouter); // 获取权限路由 path
 router.put('/addPermissionRouter', permission.addPermissionRouter); // 添加权限路由
 
+// 管理员
+router.get('/getSysAdmins', sysAdmin.getSysAdmins); // 获取管理员
+
+
+
+
 // 角色
 router.get('/getAdminRoles', adminRoles.getAdminRoles); // 获取角色
 router.get('/getRight', adminRoles.getRight); // 获取权限
+router.get('/isRepeatRoleName', adminRoles.queryRepeatName); // 查询是否有重名角色
 router.put('/addRole', adminRoles.addRole); // 新建角色
+router.get('/roleInfo', adminRoles.roleInfo); // 获取角色信息用于编辑
+router.post('/modifyRole', adminRoles.modifyRole); // 修改角色
+router.delete('/delRole', adminRoles.delRole); // 删除角色
 
 
 // 分类

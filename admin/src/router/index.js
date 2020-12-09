@@ -105,10 +105,10 @@ export const asyncRouterMap = [ // 异步加载的路由 有权限控制
             },
             //
             {
-                path: 'rbacUser',
-                name: 'rbacUser',
-                component: () => import('@/views/rbac/rbacUser'),
-                meta: { title: '用户权限' },
+                path: 'sysAdmins',
+                name: 'sysAdmins',
+                component: () => import('@/views/rbac/sysAdmins'),
+                meta: { title: '管理员列表' },
             },
             //
             {

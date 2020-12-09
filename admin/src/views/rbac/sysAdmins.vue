@@ -1,11 +1,11 @@
 <template>
-  <div class="sys-admin">
+  <div class="sys-admins">
     <header>
       <el-button
         type="primary"
         icon="el-icon-plus"
         @click="$router.push({ name: 'addSysAdmin' })"
-        >新建角色</el-button
+        >新建用户</el-button
       >
     </header>
     <el-table
@@ -16,44 +16,38 @@
       border
     >
       <el-table-column
-        prop="role_id"
-        label="角色ID"
+        prop="admin_id"
+        label="管理员ID"
         width="180"
         align="center"
       ></el-table-column>
 
       <el-table-column
-        prop="role_name"
-        label="角色名称"
-        align="center"
-        width="300"
-      ></el-table-column>
-
-      <el-table-column
-        prop="role_desc"
-        label="角色说明"
+        prop="admin_name"
+        label="管理员名称"
         align="center"
       ></el-table-column>
 
-      <el-table-column label="操作" width="200" align="center">
+      <el-table-column prop="avatar" width="200" label="头像" align="center">
         <template slot-scope="item">
-          <el-button
-            type="text"
-            icon="el-icon-edit"
-            @click="
-              $router.push({
-                name: 'editAdminRole',
-                params: { id: item.row.role_id }
-              })
-            "
-          >
-            编辑
-          </el-button>
+          <img :src="item.row.avatar" :alt="item.row.avatar" />
+        </template>
+      </el-table-column>
+
+      <el-table-column prop="status" label="状态" align="center">
+        <template slot-scope="item">
+          <span v-if="item.row.status">启用</span>
+          <span v-else>未启用</span>
+        </template>
+      </el-table-column>
+
+      <el-table-column label="操作" align="center">
+        <template slot-scope="item">
+          <el-button type="text" icon="el-icon-edit"> 编辑 </el-button>
           <el-button
             type="text"
             icon="el-icon-delete"
-            @click="delRole(item.row.role_id)"
-            v-if="!item.row.role_root"
+            v-if="!item.row.admin_root"
           >
             删除
           </el-button>
@@ -75,13 +69,13 @@ export default {
     };
   },
   created() {
-    this.getAdminRoles();
+    this.getSysAdmins();
   },
   methods: {
-    // 获取角色数据
-    async getAdminRoles() {
+    // 获取管理员数据
+    async getSysAdmins() {
       this.loading = true;
-      const res = await this.$request({ url: '/getAdminRoles' });
+      const res = await this.$request({ url: '/getSysAdmins' });
       this.tableData = res.data;
       this.loading = false;
     },
@@ -117,7 +111,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.sys-admin {
+.sys-admins {
   width: 90%;
   margin: 0 auto;
   padding: 20px 0;
