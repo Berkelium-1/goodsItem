@@ -243,7 +243,7 @@ module.exports = {
         } catch (err) {
             const responseData = {
                 code: 500,
-                msg: '清除管理与角色出错,但权限已经清除'
+                msg: '清除管理与角色的关联出错,但权限已经清除'
             };
             res.send(responseData);
             return false;
@@ -255,12 +255,11 @@ module.exports = {
         } catch (err) {
             const responseData = {
                 code: 500,
-                msg: '删除角色出错,但已清除权限和管理的联系'
+                msg: '删除角色出错,但已清除权限和管理的关联'
             };
             res.send(responseData);
             return false;
         }
-
 
         const responseData = {
             code: 200,

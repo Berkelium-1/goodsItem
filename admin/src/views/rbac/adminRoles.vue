@@ -36,24 +36,22 @@
       ></el-table-column>
 
       <el-table-column label="操作" width="200" align="center">
-        <template slot-scope="item">
+        <template slot-scope="{ row }">
           <el-button
             type="text"
             icon="el-icon-edit"
-            @click="
-              $router.push({
-                name: 'editAdminRole',
-                params: { id: item.row.role_id }
-              })
-            "
+            @click="editAdminRole(row.role_id)"
+            v-if="!row.role_root || role_root"
           >
             编辑
           </el-button>
+          <span v-else> 无权限 </span>
+
           <el-button
             type="text"
             icon="el-icon-delete"
-            @click="delRole(item.row.role_id)"
-            v-if="!item.row.role_root"
+            @click="delRole(row.role_id)"
+            v-if="!row.role_root"
           >
             删除
           </el-button>
@@ -64,6 +62,8 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex';
+
 export default {
   data() {
     return {
@@ -77,6 +77,9 @@ export default {
   created() {
     this.getAdminRoles();
   },
+  computed: {
+    ...mapGetters(['role_root'])
+  },
   methods: {
     // 获取角色数据
     async getAdminRoles() {
@@ -85,6 +88,11 @@ export default {
       this.tableData = res.data;
       this.loading = false;
     },
+    // 编辑角色
+    editAdminRole(id) {
+      this.$router.push({ name: 'editAdminRole', params: { id } });
+    },
+    // 删除角色
     delRole(role_id) {
       this.$confirm('删除此角色会使关联此角色的用户失去此角色的权限', '提示', {
         confirmButtonText: '确定',

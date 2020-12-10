@@ -65,7 +65,6 @@ export default {
     }
   },
   created() {
-    // console.log(this.rbac_router);
     this.getDefaultChecked();
   },
   methods: {

@@ -1,10 +1,18 @@
 const dbConfig = require('../config/dbconfig');
+const commom = require('../util/common');
 
 module.exports = {
     // 获取管理员数据
     async getSysAdmins(req, res, next) {
-        const sys_admin_data = await dbConfig.sqlConnect(`select admin_id, admin_name, status, avatar, admin_root from sys_admins`, []);
-        const data = sys_admin_data;
+        const sys_admin_data = await dbConfig.sqlConnect(`select admin_id, admin_name, status, avatar, latest_time, admin_root from sys_admins`, []);
+
+        const data = sys_admin_data.map(v => {
+            if (v.latest_time) {
+                v.latest_time = commom.formatTime(v.latest_time);
+            }
+            return v;
+        });
+
         const responseData = {
             code: 200,
             data

@@ -112,6 +112,23 @@ export const asyncRouterMap = [ // 异步加载的路由 有权限控制
             },
             //
             {
+                path: 'addSysAdmin',
+                name: 'addSysAdmin',
+                component: () => import('@/views/rbac/sysAdminForm'),
+                meta: { title: '新建管理' },
+                hidden: true
+            },
+            //
+            {
+                path: 'editSysAdmin/:id',
+                name: 'editSysAdmin',
+                props: true,
+                component: () => import('@/views/rbac/sysAdminForm'),
+                meta: { title: '编辑管理' },
+                hidden: true
+            },
+            //
+            {
                 path: 'adminRoles',
                 name: 'adminRoles',
                 component: () => import('@/views/rbac/adminRoles'),

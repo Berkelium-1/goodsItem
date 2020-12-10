@@ -1,23 +1,14 @@
 const jwt = require('../util/jsonwebtoken');
 const dbConfig = require('../config/dbconfig');
+const commom = require('../util/common');
 
 module.exports = {
     // 登录
-    login(req, res, next) {
+    async login(req, res, next) {
         const { account, password } = req.body;
-        const sql = `select admin_id, admin_name, login_account from sys_admins where binary (admin_name=? or login_account=?) and login_password=?`;
-        const sqlArr = [account, account, password]; // 放进占位符的变量 
-        const callback = (err, data) => {
-            if (err) {
-                const responseData = {
-                    code: 500,
-                    msg: 'error'
-                }
-                res.send(responseData);
-                return console.log(err);
-
-            }
-            if (!data.length > 0) {
+        try {
+            const sys_admins_data = await dbConfig.sqlConnect(`select * from sys_admins where binary (admin_name=? or login_account=?) and login_password=?`, [account, account, password]);
+            if (sys_admins_data.length === 0) {
                 const responseData = {
                     code: 404,
                     msg: '账号或者密码错误'
@@ -26,10 +17,26 @@ module.exports = {
                 return false;
             }
 
-            const payload = JSON.parse(JSON.stringify(data[0])); // 转化为纯对象
+            const { admin_id, admin_name, login_account, status } = sys_admins_data[0];
+
+            if (!status) {
+                const responseData = {
+                    code: 403,
+                    msg: '账号已冻结'
+                }
+                res.send(responseData);
+                return false;
+            }
+
+
+
+            const payload = { admin_id, admin_name, login_account };
 
             const token = jwt.getToken(payload);
 
+            const latest_time = commom.formatTime(Date.now());
+
+            await dbConfig.sqlConnect(`update sys_admins set latest_time=? where admin_id=?`, [latest_time, admin_id]);
 
             const responseData = {
                 code: 200,
@@ -37,9 +44,16 @@ module.exports = {
                 token
             }
             res.send(responseData);
+        } catch (err) {
+            const responseData = {
+                code: 500,
+                msg: 'error'
+            }
+            res.send(responseData);
         }
 
-        dbConfig.sqlConnect(sql, sqlArr, callback);
+
+
     },
     // 验证token
     async verifyToken(req, res, next) {
@@ -58,9 +72,7 @@ module.exports = {
             return result;
         }
 
-        const sql = `select * from sys_admins where admin_id=? and admin_name=? and login_account=?;`;
-        const sqlArr = [admin_id, admin_name, login_account]; // 放进占位符的变量 
-        const data = await dbConfig.sqlConnect(sql, sqlArr);
+        const data = await dbConfig.sqlConnect(`select * from sys_admins where admin_id=? and admin_name=? and login_account=?;`, [admin_id, admin_name, login_account]);
 
         if (data.length == 0) {
             const responseData = {
@@ -71,6 +83,16 @@ module.exports = {
             return false;
         }
 
+        const { status } = data[0];
+
+        if (!status) {
+            const responseData = {
+                code: 403,
+                msg: '账号已冻结'
+            }
+            res.send(responseData);
+            return false;
+        }
 
         const responseData = {
             code: 200,

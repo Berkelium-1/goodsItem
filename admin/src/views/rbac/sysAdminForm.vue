@@ -1,10 +1,10 @@
 <template>
   <div
-    class="admin-role-form"
+    class="sys-admin-form"
     v-loading="loading"
     @keydown.enter="submitForm(id)"
   >
-    <el-form ref="roleForm" :model="model" :rules="rules" label-width="100px">
+    <el-form ref="adminForm" :model="model" :rules="rules" label-width="100px">
       <!-- 角色名称 -->
       <el-form-item
         label="角色名称:"
@@ -165,7 +165,7 @@ export default {
     // 按下创建 或者 修改
     async submitForm(id) {
       // 验证表单
-      this.$refs['roleForm'].validate(async (valid) => {
+      this.$refs['adminForm'].validate(async (valid) => {
         this.loading = true;
 
         if (!valid) {
@@ -219,7 +219,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.admin-role-form {
+.sys-admin-form {
   padding: 20px;
   .el-form {
     // margin: 0 auto;

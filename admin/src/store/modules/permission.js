@@ -1,12 +1,11 @@
 // store/permission.js
 import { asyncRouterMap, constantRouterMap } from '@/router';
-
 const permission = {
 
     state: {
         routers: constantRouterMap,
         addRouters: [],
-        rbac_router: asyncRouterMap.filter(v => v.path != '*') // 过滤 * 重定向 所有权限路由
+        rbac_router: JSON.parse(JSON.stringify(asyncRouterMap)).filter(v => v.path !== '*') // 过滤 * 重定向 所有权限路由
     },
 
     mutations: {
