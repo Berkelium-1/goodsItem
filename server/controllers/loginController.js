@@ -55,6 +55,7 @@ module.exports = {
 
 
     },
+
     // 验证token
     async verifyToken(req, res, next) {
         const { token } = req.body;
@@ -101,6 +102,7 @@ module.exports = {
         res.send(responseData);
 
     },
+
     // 获取信息
     async getInfo(req, res, next) {
         const { token } = req.query;
@@ -120,7 +122,7 @@ module.exports = {
         }
 
 
-        // 账号表验证是否有此账号
+        // 管理员表验证是否有此账号
         const sql = `select admin_id, admin_name, login_account, status, avatar from sys_admins where admin_id=? and admin_name=? and login_account=?;`; // 查询管理员表
         const sqlArr = [admin_id, admin_name, login_account]; // 放进占位符的变量 
         const sys_admins_data = await dbConfig.sqlConnect(sql, sqlArr);
@@ -153,7 +155,7 @@ module.exports = {
 
             let right_list_data = await dbConfig.sqlConnect(`select right_id from right_list where right_type='router';`, []); // 查询 权限表 所有路由权限id
             for (let i = 0; i < right_list_data.length; i++) {
-                right_list_data[i] = right_list_data[i]['right_id']; // 去除对象改为只有right_id的值
+                right_list_data[i] = right_list_data[i]['right_id']; // 去除对象改为只有 right_id 的值
             }
 
             if (role_root === 1) { // 如果拥有最高权限

@@ -25,6 +25,9 @@ router.put('/addPermissionRouter', permission.addPermissionRouter); // 添加权
 
 // 管理员
 router.get('/getSysAdmins', sysAdmin.getSysAdmins); // 获取管理员
+router.get('/getAllRole', sysAdmin.getAllRole); // 获取所有角色
+router.get('/isRepeatAdminName', sysAdmin.queryRepeatName); // 查询是否有重名管理员用户
+router.put('/addAdminUser', sysAdmin.addAdminUser); // 新建管理员用户
 
 
 
@@ -58,8 +61,6 @@ router.get('/goodsInfo', goods.getGoods); // 获取商品信息
 router.post('/modifyGoods', goods.modifyGoods); // 修改商品
 router.post('/changeState', goods.changeState); // 修改商品状态
 router.delete('/delGoods', goods.delGoods); // 删除商品
-
-
 
 
 module.exports = router;

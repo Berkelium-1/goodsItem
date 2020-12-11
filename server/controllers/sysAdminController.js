@@ -20,6 +20,68 @@ module.exports = {
         res.send(responseData);
     },
 
+    // 获取所有角色
+    async getAllRole(req, res, next) {
+        const admin_roles_data = await dbConfig.sqlConnect(`select role_id, role_name from admin_roles`, []);
+        const data = admin_roles_data;
+        const responseData = {
+            code: 200,
+            data
+        };
+        res.send(responseData)
+    },
+
+    // 查询重名
+    async queryRepeatName(req, res, next) {
+        const { admin_name, login_account } = req.query;
+
+        try {
+            const sys_admins_data = await dbConfig.sqlConnect(`select * from sys_admins where admin_name=? or login_account=?`, [admin_name, login_account]); // 查询角色表
+
+            const responseData = {
+                code: 200,
+                msg: sys_admins_data.length > 0
+            };
+
+            res.send(responseData);
+        } catch (err) {
+            const responseData = {
+                code: 500,
+                msg: 'error'
+            };
+
+            res.send(responseData);
+        }
+
+    },
+
+    // 新建管理员
+    async addAdminUser(req, res, next) {
+        const {
+            admin_name,
+            admin_desc,
+            login_account,
+            login_password,
+            avatar,
+            roles
+        } = req.body;
+
+        try {
+            const { insertId } = await dbConfig.sqlConnect(`insert into sys_admins (admin_name, admin_desc, login_account, login_password, avatar) values (?, ?, ?, ?, ?);`, [admin_name, admin_desc, login_account, login_password, avatar]); // 插入数据到管理员表
+            await dbConfig.sqlConnect(`insert into sys_admin (admin_name, admin_desc, login_account, login_password, avatar) values (?, ?, ?, ?, ?);`, [admin_name, admin_desc, login_account, login_password, avatar]); // 查询一级菜单表
+            console.log(data);
+            res.send(data);
+
+        } catch (err) {
+            const responseData = {
+                code: 500,
+                msg: 'error'
+            };
+
+            res.send(responseData);
+        }
+    },
+
     // 获取权限
     async getRight(req, res, next) {
         // 路由权限
@@ -68,29 +130,8 @@ module.exports = {
         };
         res.send(responseData);
     },
-    // 查询重名
-    async queryRepeatName(req, res, next) {
-        const { role_name } = req.query;
 
-        try {
-            const admin_roles_data = await dbConfig.sqlConnect(`select * from admin_roles where role_name=?`, [role_name]); // 查询角色表
 
-            const responseData = {
-                code: 200,
-                msg: admin_roles_data.length > 0
-            };
-
-            res.send(responseData);
-        } catch (err) {
-            const responseData = {
-                code: 500,
-                msg: 'error'
-            };
-
-            res.send(responseData);
-        }
-
-    },
     // 添加角色
     async addRole(req, res, next) {
         const { role_name, role_desc, router_rights } = req.body;

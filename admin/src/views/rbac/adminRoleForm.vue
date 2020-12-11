@@ -170,6 +170,7 @@ export default {
 
         if (!valid) {
           this.$message({ message: '请正确填写必填项！', type: 'error' });
+          this.loading = false;
           return valid; // 表单验证错误则阻断后面代码
         }
 
@@ -183,10 +184,19 @@ export default {
 
           // 如果存在同名称的分类 阻断后面代码
           if (isRepeatName.msg) {
-            return this.$message({ message: '此角色已存在', type: 'error' });
+            this.$message({ message: '此角色已存在', type: 'error' });
+            this.loading = false;
+            return false;
           }
         }
-        const routerCheckedNodes = this.$refs['routerTree'].getCheckedNodes();
+
+        let routerCheckedNodes = [];
+
+        if (!this.role_root) {
+          // 只有非最高权限的角色才需要添加权限
+          routerCheckedNodes = this.$refs['routerTree'].getCheckedNodes();
+        }
+
         const router_rights = []; // 所有的路由权限id
         routerCheckedNodes.forEach((v) => {
           if (v.right_id) {

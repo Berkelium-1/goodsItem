@@ -6,7 +6,7 @@
         icon="el-icon-plus"
         @click="$router.push({ name: 'addSysAdmin' })"
       >
-        新建管理
+        新建用户
       </el-button>
     </header>
     <el-table
@@ -18,7 +18,7 @@
     >
       <el-table-column
         prop="admin_id"
-        label="管理员ID"
+        label="用户ID"
         width="180"
         align="center"
       ></el-table-column>
@@ -31,7 +31,7 @@
 
       <el-table-column
         prop="admin_name"
-        label="管理员名称"
+        label="用户名称"
         align="center"
         width="280"
       ></el-table-column>
@@ -44,7 +44,8 @@
 
       <el-table-column prop="status" label="状态" align="center" width="200">
         <template slot-scope="{ row }">
-          <span>{{ row.status ? '正常' : '冻结' }}</span>
+          <span v-if="row.status" class="success-text">正常</span>
+          <span v-else class="error-text">冻结</span>
         </template>
       </el-table-column>
 

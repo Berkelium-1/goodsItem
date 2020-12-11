@@ -101,21 +101,21 @@ export const asyncRouterMap = [ // 异步加载的路由 有权限控制
                 path: 'ctrl',
                 name: 'ctrl',
                 component: () => import('@/views/rbac/ctrl'),
-                meta: { title: '权限控制' },
+                meta: { title: '权限设置' },
             },
             //
             {
                 path: 'sysAdmins',
                 name: 'sysAdmins',
                 component: () => import('@/views/rbac/sysAdmins'),
-                meta: { title: '管理员列表' },
+                meta: { title: '管理人员' },
             },
             //
             {
                 path: 'addSysAdmin',
                 name: 'addSysAdmin',
                 component: () => import('@/views/rbac/sysAdminForm'),
-                meta: { title: '新建管理' },
+                meta: { title: '新建用户' },
                 hidden: true
             },
             //
@@ -124,7 +124,7 @@ export const asyncRouterMap = [ // 异步加载的路由 有权限控制
                 name: 'editSysAdmin',
                 props: true,
                 component: () => import('@/views/rbac/sysAdminForm'),
-                meta: { title: '编辑管理' },
+                meta: { title: '编辑用户' },
                 hidden: true
             },
             //

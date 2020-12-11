@@ -5,58 +5,98 @@
     @keydown.enter="submitForm(id)"
   >
     <el-form ref="adminForm" :model="model" :rules="rules" label-width="100px">
-      <!-- 角色名称 -->
-      <el-form-item
-        label="角色名称:"
-        prop="role_name"
-        class="role-name"
-        required
-      >
+      <!-- 用户名称 -->
+      <el-form-item label="用户名称:" prop="admin_name" class="admin-name">
         <el-input
-          v-model="model.role_name"
-          placeholder="请输入角色名称"
+          v-model="model.admin_name"
+          placeholder="请输入用户名称"
         ></el-input>
         <!-- <span style="color: #aaa">为了美观，建议中文控制在4个字以内</span> -->
       </el-form-item>
 
-      <!-- 角色说明 -->
-      <el-form-item label="角色说明:" class="role-desc" style="width: 60%">
+      <!-- 用户账号 -->
+      <el-form-item
+        label="用户账号:"
+        prop="login_account"
+        class="login-account"
+      >
+        <el-input
+          v-model="model.login_account"
+          placeholder="请输入账号"
+        ></el-input>
+        <span style="color: #aaa">8 ~ 16位数字</span>
+      </el-form-item>
+
+      <!-- 用户密码 -->
+      <el-form-item
+        label="用户密码:"
+        prop="login_password"
+        class="login-password"
+      >
+        <el-input
+          type="password"
+          v-model="model.login_password"
+          placeholder="请输入密码"
+        ></el-input>
+        <span style="color: #aaa">仅支持 英文、数字、下划线</span>
+      </el-form-item>
+
+      <!-- 再次输入用户密码 -->
+      <el-form-item
+        type="password"
+        label="确认密码:"
+        prop="login_password2"
+        class="login-password"
+      >
+        <el-input
+          v-model="model.login_password2"
+          placeholder="请再次输入密码"
+        ></el-input>
+      </el-form-item>
+
+      <!-- 图片 -->
+      <el-form-item label="图片:" class="upload-img">
+        <el-upload
+          ref="imgUpload"
+          class="avatar-uploader"
+          :action="$request.defaults.baseURL + '/uploadImg'"
+          :show-file-list="false"
+          :on-success="uploadImgSuccess"
+        >
+          <img v-if="model.avatar" :src="model.avatar" class="avatar" />
+          <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+        </el-upload>
+        <span class="note">
+          请尽量使用比例 1:1 的正方形图片，且大小不要超过5M
+        </span>
+      </el-form-item>
+
+      <!-- 备注 -->
+      <el-form-item label="备注:" class="admin-desc" style="width: 60%">
         <el-input
           type="textarea"
           :rows="5"
           maxlength="100"
           show-word-limit
-          v-model="model.role_desc"
+          v-model="model.admin_desc"
           placeholder="请输入角色说明"
         ></el-input>
       </el-form-item>
 
-      <!-- 角色权限 -->
+      <!-- 角色绑定 -->
       <el-form-item
-        label="角色权限:"
+        label="角色绑定:"
         class="role-right"
         style="width: 60%"
-        v-if="!model.role_root"
+        v-if="!model.admin_root"
       >
-        <el-tabs type="card">
-          <el-tab-pane>
-            <span slot="label">路由权限</span>
-            <el-tree
-              ref="routerTree"
-              :data="routerTreeData"
-              node-key="path"
-              :default-checked-keys="router_default_checked"
-              default-expand-all
-              highlight-current
-              show-checkbox
-            >
-            </el-tree>
-          </el-tab-pane>
-          <el-tab-pane>
-            <span slot="label">其它权限</span>
-            暂无其它权限
-          </el-tab-pane>
-        </el-tabs>
+        <el-checkbox
+          v-for="item in roleData"
+          :key="item.role_id"
+          :label="item.role_name"
+          v-model="item.checked"
+          border
+        ></el-checkbox>
       </el-form-item>
 
       <el-form-item>
@@ -78,9 +118,47 @@ export default {
   },
   data() {
     // 验证名称
-    const verifyRoleName = (rule, value, callback) => {
+    const verifyAdminName = (rule, value, callback) => {
       if (!value) {
         callback(new Error('请输入名称'));
+      } else {
+        callback && callback(); // 这行一定要加 否则不进入表单整体验证
+      }
+    };
+    // 验证账号
+    const verifyAccount = (rule, value, callback) => {
+      if (!value) {
+        callback(new Error('请输入账号'));
+      } else {
+        const reg = /^\d{8,16}$/;
+        if (!reg.test(value)) {
+          callback(new Error('请输入8 ~ 16位的数字'));
+        } else {
+          callback && callback(); // 这行一定要加 否则不进入表单整体验证
+        }
+      }
+    };
+    // 验证密码
+    const verifyPassword = (rule, value, callback) => {
+      if (!value) {
+        callback(new Error('请输入密码'));
+      } else if (value.length < 6) {
+        callback(new Error('至少要6个字符长度'));
+      } else {
+        const reg = /^[\d_\w]{6,20}$/;
+        if (!reg.test(value)) {
+          callback(new Error('密码格式有误！'));
+        } else {
+          callback && callback(); // 这行一定要加 否则不进入表单整体验证
+        }
+      }
+    };
+    // 验证再次输入的密码
+    var verifyPassword2 = (rule, value, callback) => {
+      if (!value) {
+        callback(new Error('请再次输入密码'));
+      } else if (value !== this.model.login_password) {
+        callback(new Error('两次输入密码不一致!'));
       } else {
         callback && callback(); // 这行一定要加 否则不进入表单整体验证
       }
@@ -88,19 +166,46 @@ export default {
     return {
       // 编辑信息集合
       model: {
-        role_name: '',
-        role_desc: '',
-        role_root: 0
+        admin_name: '',
+        admin_desc: '',
+        login_account: '',
+        login_password: '',
+        avatar: '',
+        login_password2: '',
+        admin_root: 0
       },
+      admin_role: [], // 当前绑定的角色id
+      roleData: [], // 角色数据
       old_name: '',
       loading: false, // 加载动画
       // 表单验证规则
       rules: {
-        role_name: [
+        admin_name: [
           {
             required: true,
-            validator: verifyRoleName,
+            validator: verifyAdminName,
             trigger: ['change', 'blur']
+          }
+        ],
+        login_account: [
+          {
+            required: true,
+            validator: verifyAccount,
+            trigger: ['blur']
+          }
+        ],
+        login_password: [
+          {
+            required: true,
+            validator: verifyPassword,
+            trigger: ['blur']
+          }
+        ],
+        login_password2: [
+          {
+            required: true,
+            validator: verifyPassword2,
+            trigger: ['blur']
           }
         ]
       },
@@ -123,30 +228,8 @@ export default {
     async init() {
       this.loading = true;
       this.id && (await this.getInfo()); // 有id就执行函数
-      await this.getRight();
+      await this.getAllRole();
       this.loading = false;
-    },
-
-    // 获取权限信息
-    async getRight() {
-      const res = await this.$request({ url: '/getRight' });
-      // 如果没有最高权限 则不允许控制权限管理的路由权限
-      if (this.role_root) {
-        this.routerTreeData = res.router_roles; // 路由权限设置
-      } else {
-        // 路由权限设置
-        this.routerTreeData = res.router_roles.map((v) => {
-          if (v.path == '/rbac') {
-            v.children = v.children.map((child) => {
-              child.disabled = true;
-              return child;
-            });
-            v.disabled = true; // 禁用
-            v.label += '（仅有最高权限管理员可控制）';
-          }
-          return v;
-        });
-      }
     },
 
     // 获取要编辑的信息
@@ -162,6 +245,20 @@ export default {
       this.router_default_checked = res.router_rights;
     },
 
+    // 获取所有角色
+    async getAllRole() {
+      const res = await this.$request({ url: '/getAllRole' });
+      this.roleData = res.data.map((v) => {
+        v.checked = false;
+        return v;
+      });
+    },
+
+    // 上传图片成功
+    uploadImgSuccess(response, file) {
+      this.model.avatar = response.file.url;
+    },
+
     // 按下创建 或者 修改
     async submitForm(id) {
       // 验证表单
@@ -170,6 +267,7 @@ export default {
 
         if (!valid) {
           this.$message({ message: '请正确填写必填项！', type: 'error' });
+          this.loading = false;
           return valid; // 表单验证错误则阻断后面代码
         }
 
@@ -177,27 +275,42 @@ export default {
         if (!(this.old_name && this.model.role_name == this.old_name)) {
           // 查询是否同名称
           const isRepeatName = await this.$request({
-            url: '/isRepeatRoleName',
-            params: { role_name: this.model.role_name }
+            url: '/isRepeatAdminName',
+            params: { admin_name: this.model.admin_name }
           });
 
           // 如果存在同名称的分类 阻断后面代码
           if (isRepeatName.msg) {
-            return this.$message({ message: '此角色已存在', type: 'error' });
+            this.$message({ message: '此用户已存在', type: 'error' });
+            this.loading = false;
+            return false;
           }
         }
-        const routerCheckedNodes = this.$refs['routerTree'].getCheckedNodes();
-        const router_rights = []; // 所有的路由权限id
-        routerCheckedNodes.forEach((v) => {
-          if (v.right_id) {
-            router_rights.push(v.right_id);
-          }
-        });
 
-        const url = id ? '/modifyRole' : '/addRole'; // 修改角色 or 创建角色
+        // 所有角色id
+        const roles = this.roleData
+          .filter((v) => v.checked)
+          .map((v) => (v = v.role_id));
+
+        // 用户信息
+        const {
+          admin_name,
+          admin_desc,
+          login_account,
+          login_password,
+          avatar
+        } = this.model;
+
+        const url = id ? '/modifyRole' : '/addAdminUser'; // 修改角色 or 创建角色
         const method = id ? 'post' : 'put';
-        const { role_name, role_desc } = this.model;
-        const data = { role_name, role_desc, router_rights };
+        const data = {
+          admin_name,
+          admin_desc,
+          login_account,
+          login_password,
+          avatar,
+          roles
+        };
 
         if (id) data.role_id = id;
 
@@ -224,12 +337,45 @@ export default {
   .el-form {
     // margin: 0 auto;
     width: 90%;
-    .role-name {
+    .admin-name,
+    .login-account,
+    .login-password {
       .el-input {
         width: 50%;
       }
       span {
         margin-left: 10px;
+      }
+    }
+
+    .upload-img {
+      .avatar-uploader .el-upload {
+        border: 1px dashed #d9d9d9;
+        border-radius: 6px;
+        cursor: pointer;
+        position: relative;
+        overflow: hidden;
+      }
+      .avatar-uploader .el-upload:hover {
+        border-color: #409eff;
+      }
+      .avatar-uploader-icon {
+        border: 1px dashed #d9d9d9;
+        font-size: 28px;
+        color: #8c939d;
+        width: 178px;
+        height: 178px;
+        line-height: 178px;
+        text-align: center;
+      }
+      .avatar {
+        max-width: 300px;
+        max-height: 300px;
+        display: block;
+      }
+
+      span.note {
+        color: #aaa;
       }
     }
   }

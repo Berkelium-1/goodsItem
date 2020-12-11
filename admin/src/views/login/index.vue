@@ -1,5 +1,5 @@
 <template>
-  <div class="login-container">
+  <div class="login-container" @keydown.enter="handleLogin">
     <el-form
       ref="loginForm"
       :model="loginForm"
