@@ -10,7 +10,7 @@ Target Server Type    : MYSQL
 Target Server Version : 80021
 File Encoding         : 65001
 
-Date: 2020-12-04 17:58:45
+Date: 2020-12-15 17:58:28
 */
 
 SET FOREIGN_KEY_CHECKS=0;
@@ -25,13 +25,14 @@ CREATE TABLE `admin_roles` (
   `role_desc` varchar(100) DEFAULT NULL COMMENT '角色描述',
   `role_root` int NOT NULL DEFAULT '0' COMMENT '1 拥有所有权限 0 按照角色--权限表来分配权限',
   PRIMARY KEY (`role_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='角色表';
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='角色表';
 
 -- ----------------------------
 -- Records of admin_roles
 -- ----------------------------
-INSERT INTO `admin_roles` VALUES ('1', 'root admin', '最高权限管理员', '1');
+INSERT INTO `admin_roles` VALUES ('1', 'root admin', '最高权限', '1');
 INSERT INTO `admin_roles` VALUES ('2', 'admin', '普通管理', '0');
+INSERT INTO `admin_roles` VALUES ('6', 'test1', '测试', '0');
 
 -- ----------------------------
 -- Table structure for category
@@ -41,7 +42,7 @@ CREATE TABLE `category` (
   `id` int NOT NULL AUTO_INCREMENT,
   `category_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '类别',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=21 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='分类表';
+) ENGINE=InnoDB AUTO_INCREMENT=22 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='分类表';
 
 -- ----------------------------
 -- Records of category
@@ -57,6 +58,7 @@ INSERT INTO `category` VALUES ('17', '分类6');
 INSERT INTO `category` VALUES ('18', '分类7');
 INSERT INTO `category` VALUES ('19', '分类8');
 INSERT INTO `category` VALUES ('20', '分类9');
+INSERT INTO `category` VALUES ('21', 'dds');
 
 -- ----------------------------
 -- Table structure for first_menu
@@ -65,19 +67,18 @@ DROP TABLE IF EXISTS `first_menu`;
 CREATE TABLE `first_menu` (
   `first_menu_id` int NOT NULL AUTO_INCREMENT COMMENT '一级菜单id',
   `path` varchar(100) NOT NULL,
-  `name` varchar(50) DEFAULT NULL,
-  `component` varchar(80) DEFAULT NULL,
+  `title` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `icon` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
   `redirect` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
-  `title` varchar(50) DEFAULT NULL,
-  `icon` varchar(50) DEFAULT NULL,
   PRIMARY KEY (`first_menu_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='一级菜单表';
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='一级菜单表';
 
 -- ----------------------------
 -- Records of first_menu
 -- ----------------------------
-INSERT INTO `first_menu` VALUES ('1', '/rbac', null, null, 'noRedirect', '权限管理', 'el-icon-cpu');
-INSERT INTO `first_menu` VALUES ('2', '/goods', null, null, 'noRedirect', '商品管理', 'el-icon-s-goods');
+INSERT INTO `first_menu` VALUES ('1', '/rbac', '权限管理', 'el-icon-cpu', 'noRedirect');
+INSERT INTO `first_menu` VALUES ('2', '/goods', '商品管理', 'el-icon-s-goods', 'noRedirect');
+INSERT INTO `first_menu` VALUES ('7', '/article', '文章管理', 'user', 'noRedirect');
 
 -- ----------------------------
 -- Table structure for goods
@@ -131,7 +132,7 @@ CREATE TABLE `right_list` (
   `right_type` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '权限类型',
   `second_menu_id` int DEFAULT NULL COMMENT '二级菜单id 关联二级菜单表',
   PRIMARY KEY (`right_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='所有权限列表';
+) ENGINE=InnoDB AUTO_INCREMENT=24 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='所有权限列表';
 
 -- ----------------------------
 -- Records of right_list
@@ -144,6 +145,11 @@ INSERT INTO `right_list` VALUES ('5', null, null, 'router', '5');
 INSERT INTO `right_list` VALUES ('6', null, null, 'router', '6');
 INSERT INTO `right_list` VALUES ('7', null, null, 'router', '7');
 INSERT INTO `right_list` VALUES ('8', null, null, 'router', '8');
+INSERT INTO `right_list` VALUES ('19', null, null, 'router', '46');
+INSERT INTO `right_list` VALUES ('20', null, null, 'router', '47');
+INSERT INTO `right_list` VALUES ('21', null, null, 'router', '48');
+INSERT INTO `right_list` VALUES ('22', null, null, 'router', '49');
+INSERT INTO `right_list` VALUES ('23', null, null, 'router', '50');
 
 -- ----------------------------
 -- Table structure for role_rights
@@ -154,14 +160,18 @@ CREATE TABLE `role_rights` (
   `role_id` int NOT NULL COMMENT '角色id 关联角色表',
   `right_id` int NOT NULL COMMENT '权限id 关联所有权限表',
   PRIMARY KEY (`role_right_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='角色--权限表（中间表）';
+) ENGINE=InnoDB AUTO_INCREMENT=40 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='角色--权限表（中间表）';
 
 -- ----------------------------
 -- Records of role_rights
 -- ----------------------------
-INSERT INTO `role_rights` VALUES ('1', '2', '1');
-INSERT INTO `role_rights` VALUES ('2', '2', '2');
-INSERT INTO `role_rights` VALUES ('3', '2', '3');
+INSERT INTO `role_rights` VALUES ('33', '2', '4');
+INSERT INTO `role_rights` VALUES ('34', '2', '5');
+INSERT INTO `role_rights` VALUES ('35', '2', '6');
+INSERT INTO `role_rights` VALUES ('36', '2', '7');
+INSERT INTO `role_rights` VALUES ('37', '2', '8');
+INSERT INTO `role_rights` VALUES ('38', '2', '19');
+INSERT INTO `role_rights` VALUES ('39', '2', '20');
 
 -- ----------------------------
 -- Table structure for second_menu
@@ -171,26 +181,27 @@ CREATE TABLE `second_menu` (
   `second_menu_id` int NOT NULL AUTO_INCREMENT COMMENT '二级菜单id',
   `first_menu_id` int NOT NULL COMMENT '一级菜单id 关联一级菜单表',
   `path` varchar(100) NOT NULL,
-  `name` varchar(50) DEFAULT NULL,
-  `component` varchar(80) NOT NULL,
   `redirect` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
   `title` varchar(50) DEFAULT NULL,
-  `icon` varchar(50) DEFAULT NULL,
   PRIMARY KEY (`second_menu_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=45 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='二级菜单表';
+) ENGINE=InnoDB AUTO_INCREMENT=51 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='二级菜单表';
 
 -- ----------------------------
 -- Records of second_menu
 -- ----------------------------
-INSERT INTO `second_menu` VALUES ('1', '1', 'ctrl', 'ctrl', '@/views/rbac/ctrl', '', '权限控制', '');
-INSERT INTO `second_menu` VALUES ('2', '1', 'rbacUser', 'rbacUser', '@/views/rbac/rbacUser', '', '用户权限', '');
-INSERT INTO `second_menu` VALUES ('3', '1', 'adminRoles', 'AdminRoles', '@/views/rbac/adminRoles', null, '角色权限', null);
-INSERT INTO `second_menu` VALUES ('4', '2', 'goodsList', 'goodsList', '@/views/goods/goodsList', null, '商品列表', null);
-INSERT INTO `second_menu` VALUES ('5', '2', 'addGoods', 'addGoods', '@/views/goods/goodsForm', null, '新建商品', null);
-INSERT INTO `second_menu` VALUES ('6', '2', 'editGoods/:id', 'editGoods', '@/views/goods/goodsForm', null, '编辑商品', null);
-INSERT INTO `second_menu` VALUES ('7', '2', 'categoryList', 'categoryList', '@/views/goods/categoryList', null, '商品分类', null);
-INSERT INTO `second_menu` VALUES ('8', '2', 'addCategory', 'addCategory', '@/views/goods/categoryForm', null, '新建分类', null);
-INSERT INTO `second_menu` VALUES ('9', '2', 'editCategory/:id', 'editCategory', '@/views/goods/categoryForm', null, '编辑分类', null);
+INSERT INTO `second_menu` VALUES ('1', '1', 'ctrl', '', '权限控制');
+INSERT INTO `second_menu` VALUES ('2', '1', 'rbacUser', '', '用户权限');
+INSERT INTO `second_menu` VALUES ('3', '1', 'adminRoles', null, '角色权限');
+INSERT INTO `second_menu` VALUES ('4', '2', 'goodsList', null, '商品列表');
+INSERT INTO `second_menu` VALUES ('5', '2', 'addGoods', null, '新建商品');
+INSERT INTO `second_menu` VALUES ('6', '2', 'editGoods/:id', null, '编辑商品');
+INSERT INTO `second_menu` VALUES ('7', '2', 'categoryList', null, '商品分类');
+INSERT INTO `second_menu` VALUES ('8', '2', 'addCategory', null, '新建分类');
+INSERT INTO `second_menu` VALUES ('46', '2', 'editCategory/:id', null, '编辑分类');
+INSERT INTO `second_menu` VALUES ('47', '7', 'articleList', null, '文章列表');
+INSERT INTO `second_menu` VALUES ('48', '1', 'addAdminRole', null, '新建角色');
+INSERT INTO `second_menu` VALUES ('49', '1', 'editAdminRole/:id', null, '编辑角色');
+INSERT INTO `second_menu` VALUES ('50', '1', 'sysAdmins', null, '管理员列表');
 
 -- ----------------------------
 -- Table structure for sys_admins
@@ -199,18 +210,21 @@ DROP TABLE IF EXISTS `sys_admins`;
 CREATE TABLE `sys_admins` (
   `admin_id` int NOT NULL AUTO_INCREMENT COMMENT '管理员id',
   `admin_name` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '管理员名称',
+  `admin_desc` varchar(100) DEFAULT NULL COMMENT '管理员说明',
   `login_account` varchar(50) NOT NULL COMMENT '登录账号',
   `login_password` varchar(18) NOT NULL COMMENT '登录密码',
   `status` int NOT NULL DEFAULT '1' COMMENT '账号状态',
   `avatar` varchar(255) DEFAULT NULL COMMENT '头像',
+  `latest_time` datetime DEFAULT NULL COMMENT '最近登录的时间',
+  `admin_root` int NOT NULL DEFAULT '0' COMMENT '0 普通 1 最高级',
   PRIMARY KEY (`admin_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='管理员表';
+) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='管理员表';
 
 -- ----------------------------
 -- Records of sys_admins
 -- ----------------------------
-INSERT INTO `sys_admins` VALUES ('1', 'root', '1922906183', '123456', '1', 'http://oss.fsfq.net/data/img/20180309bt5rn1520601530.jpg');
-INSERT INTO `sys_admins` VALUES ('2', 'putong', '2225710499', '123456', '1', 'http://oss.fsfq.net/data/img/20180309bt5rn1520601530.jpg');
+INSERT INTO `sys_admins` VALUES ('1', 'root', null, '1922906183', '123456', '1', 'http://oss.fsfq.net/data/img/20180309bt5rn1520601530.jpg', '2020-12-15 09:40:48', '1');
+INSERT INTO `sys_admins` VALUES ('2', 'putong', null, '2225710499', '123456', '1', 'http://oss.fsfq.net/data/img/20180309bt5rn1520601530.jpg', '2020-12-11 09:50:10', '0');
 
 -- ----------------------------
 -- Table structure for sys_admin_roles
@@ -221,13 +235,13 @@ CREATE TABLE `sys_admin_roles` (
   `admin_id` int NOT NULL COMMENT '管理员id 关联管理员表',
   `role_id` int NOT NULL COMMENT '角色id 关联角色表',
   PRIMARY KEY (`adnin_role_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='管理员--角色（中间表）';
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='管理员--角色（中间表）';
 
 -- ----------------------------
 -- Records of sys_admin_roles
 -- ----------------------------
 INSERT INTO `sys_admin_roles` VALUES ('1', '1', '1');
-INSERT INTO `sys_admin_roles` VALUES ('2', '2', '2');
+INSERT INTO `sys_admin_roles` VALUES ('3', '2', '2');
 
 -- ----------------------------
 -- Table structure for uploadimgs
@@ -240,7 +254,7 @@ CREATE TABLE `uploadimgs` (
   `createtime` datetime NOT NULL COMMENT '上传时间',
   `state` int NOT NULL DEFAULT '0' COMMENT '使用状态：0未使用，1使用中',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=44 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='图片上传表';
+) ENGINE=InnoDB AUTO_INCREMENT=45 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='图片上传表';
 
 -- ----------------------------
 -- Records of uploadimgs
@@ -270,3 +284,4 @@ INSERT INTO `uploadimgs` VALUES ('40', 'G:\\lhp study\\goodsItem\\server\\public
 INSERT INTO `uploadimgs` VALUES ('41', 'G:\\lhp study\\goodsItem\\server\\public\\img\\5d80b0a88aad0ef0626cdd00f295da20', 'http://localhost:3000/public/img/5d80b0a88aad0ef0626cdd00f295da20', '2020-11-24 10:02:57', '0');
 INSERT INTO `uploadimgs` VALUES ('42', 'G:\\lhp study\\goodsItem\\server\\public\\img\\5b561d5837c910ab52b47dc118e17983', 'http://localhost:3000/public/img/5b561d5837c910ab52b47dc118e17983', '2020-11-24 10:04:15', '1');
 INSERT INTO `uploadimgs` VALUES ('43', 'G:\\lhp study\\goodsItem\\server\\public\\img\\52e46bff0901bc0f4a99bf6f54078b2c', 'http://localhost:3000/public/img/52e46bff0901bc0f4a99bf6f54078b2c', '2020-11-24 11:26:07', '1');
+INSERT INTO `uploadimgs` VALUES ('44', 'G:\\lhp study\\goodsItem\\server\\public\\img\\c2c085dd24ad1097f44388a8441c6ebb', 'http://localhost:3000/public/img/c2c085dd24ad1097f44388a8441c6ebb', '2020-12-07 16:20:12', '0');

@@ -87,46 +87,60 @@ module.exports = {
     async addRole(req, res, next) {
         const { role_name, role_desc, router_rights } = req.body;
 
+        if (!(role_name && router_rights)) {
+            const responseData = {
+                code: 400,
+                msg: 'miss param' // 缺少参数
+            };
+
+            return res.send(responseData);
+        }
+
+
         try {
-            await dbConfig.sqlConnect(`insert into admin_roles (role_name, role_desc) values(?, ?);`, [role_name, role_desc]); // 添加 角色表
+            await dbConfig.sqlConnect(`begin;`, []); // 开启事务
+
+            const { insertId } = await dbConfig.sqlConnect(`insert into admin_roles (role_name, role_desc) values(?, ?);`, [role_name, role_desc]); // 插入 角色表
+
+            for (let i = 0; i < router_rights.length; i++) {
+                const right_id = router_rights[i];
+                await dbConfig.sqlConnect(`insert into role_rights (role_id, right_id) values (?, ?);`, [insertId, right_id]); // 插入 角色--权限表（中间表）
+            }
+
+            await dbConfig.sqlConnect(`commit;`, []); // 提交事务
+
+            const responseData = {
+                code: 200,
+                msg: 'create success'
+            };
+
+            res.send(responseData);
+
         } catch (err) {
+
+            await dbConfig.sqlConnect('rollback;', []); // 回滚
+
             const responseData = {
                 code: 500,
-                msg: '创建角色失败'
+                msg: 'error'
             };
             res.send(responseData);
         }
-
-        const admin_roles_data = await dbConfig.sqlConnect(`select * from admin_roles where role_name=? and role_desc=?;`, [role_name, role_desc]); // 查询角色表
-        const role_id = admin_roles_data[0]['role_id'];
-
-        for (let i = 0; i < router_rights.length; i++) {
-            const right_id = router_rights[i];
-            try {
-                await dbConfig.sqlConnect(`insert into role_rights (role_id, right_id) values (?, ?);`, [role_id, right_id]); // 添加 角色--权限表（中间表）
-            } catch (err) {
-                await dbConfig.sqlConnect(`delete from admin_roles where role_id=?;`, [role_id]); // 删除 添加的角色
-
-                const responseData = {
-                    code: 500,
-                    msg: '添加权限出错'
-                };
-                res.send(responseData);
-                return false;
-            }
-        }
-
-
-        const responseData = {
-            code: 200,
-            msg: '创建成功'
-        };
-        res.send(responseData);
-
     },
+
     // 获取角色信息用于编辑
     async roleInfo(req, res, next) {
         const { role_id } = req.query;
+
+        if (!role_id) {
+            const responseData = {
+                code: 400,
+                msg: 'miss param' // 缺少参数
+            };
+
+            return res.send(responseData);
+        }
+
         const admin_roles_data = await dbConfig.sqlConnect(`select * from admin_roles where role_id=?;`, [role_id]); // 查询角色表
         const { role_name, role_desc, role_root } = admin_roles_data[0];
 
@@ -171,100 +185,89 @@ module.exports = {
         res.send(responseData);
 
     },
+
     // 修改角色
     async modifyRole(req, res, next) {
         const { role_id, role_name, role_desc, router_rights } = req.body;
 
+        if (!(role_id && role_name)) {
+            const responseData = {
+                code: 400,
+                msg: 'miss param' // 缺少参数
+            };
+
+            return res.send(responseData);
+        }
+
         try {
+            await dbConfig.sqlConnect(`begin;`, []); // 开启事务
+
             await dbConfig.sqlConnect(`update admin_roles set role_name=?, role_desc=? where role_id=?;`, [role_name, role_desc, role_id]); // 修改角色表
-        } catch (err) {
-            const responseData = {
-                code: 500,
-                msg: '修改角色出错'
-            };
-            res.send(responseData);
-            return false;
-        }
-
-
-        try {
             await dbConfig.sqlConnect(`delete from role_rights where role_id=?;`, [role_id]); // 删除原来的权限 角色--权限表（中间表）
+
+            for (let i = 0; i < router_rights.length; i++) {
+                const right_id = router_rights[i];
+                await dbConfig.sqlConnect(`insert into role_rights (role_id, right_id) values (?, ?);`, [role_id, right_id]); // 添加 角色--权限表（中间表）
+            }
+
+            await dbConfig.sqlConnect(`commit;`, []); // 提交事务
+
+            const responseData = {
+                code: 200,
+                msg: 'revise success'
+            };
+
+            res.send(responseData);
         } catch (err) {
+            await dbConfig.sqlConnect('rollback;', []); // 回滚
             const responseData = {
                 code: 500,
-                msg: '修改权限出错'
+                msg: 'error'
             };
             res.send(responseData);
-            return false;
         }
-
-
-        for (let i = 0; i < router_rights.length; i++) {
-
-            const right_id = router_rights[i];
-
-            try {
-                await dbConfig.sqlConnect(`insert into role_rights (role_id, right_id) values (?, ?);`, [role_id, right_id]); // 添加 角色--权限表（中间表）
-            } catch (err) {
-                const responseData = {
-                    code: 500,
-                    msg: '修改权限出错,已删除所有权限'
-                };
-                res.send(responseData);
-                return false;
-            }
-        }
-
-        const responseData = {
-            code: 200,
-            msg: '修改成功'
-        };
-        res.send(responseData);
     },
+
     // 删除角色
     async delRole(req, res, next) {
         const { role_id } = req.body;
 
-        try {
-            // 删除该角色所有的权限
-            await dbConfig.sqlConnect(`delete from role_rights where role_id=?;`, [role_id]); // 删除 角色--权限表（中间表）
-        } catch (err) {
+        if (!role_id) {
             const responseData = {
-                code: 500,
-                msg: '清除权限出错'
+                code: 400,
+                msg: 'miss param' // 缺少参数
             };
-            res.send(responseData);
-            return false;
+
+            return res.send(responseData);
         }
 
-        try {
-            // 删除该角色与管理员的关联
-            await dbConfig.sqlConnect(`delete from sys_admin_roles where role_id=?;`, [role_id]); // 删除 管理员--角色（中间表）
-        } catch (err) {
-            const responseData = {
-                code: 500,
-                msg: '清除管理与角色的关联出错,但权限已经清除'
-            };
-            res.send(responseData);
-            return false;
-        }
 
         try {
+            await dbConfig.sqlConnect(`begin;`, []); // 开启事务
+
             // 删除该角色
             await dbConfig.sqlConnect(`delete from admin_roles where role_id=?;`, [role_id]); // 删除 角色表间表）
-        } catch (err) {
+            // 删除该角色所有的权限
+            await dbConfig.sqlConnect(`delete from role_rights where role_id=?;`, [role_id]); // 删除 角色--权限表（中间表）
+            // 删除该角色与管理员的关联
+            await dbConfig.sqlConnect(`delete from sys_admin_roles where role_id=?;`, [role_id]); // 删除 管理员--角色（中间表）
+
+            await dbConfig.sqlConnect(`commit;`, []); // 提交事务
+
             const responseData = {
-                code: 500,
-                msg: '删除角色出错,但已清除权限和管理的关联'
+                code: 200,
+                msg: 'delete success'
             };
             res.send(responseData);
-            return false;
-        }
 
-        const responseData = {
-            code: 200,
-            msg: '删除成功'
-        };
-        res.send(responseData);
+        } catch (err) {
+            await dbConfig.sqlConnect('rollback;', []); // 回滚
+
+            const responseData = {
+                code: 500,
+                msg: 'error'
+            };
+            res.send(responseData);
+        }
     }
 };

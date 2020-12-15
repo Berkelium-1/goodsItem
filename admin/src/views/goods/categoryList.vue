@@ -106,6 +106,8 @@ export default {
         params: { keyword, pageSize }
       });
       this.tableData = res.data;
+      this.pageTotal = res.total;
+      this.nowPage = 1;
       this.loading = false; // 关闭加载动画
     },
     // 删除分类

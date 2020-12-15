@@ -43,12 +43,12 @@
 
       <!-- 再次输入用户密码 -->
       <el-form-item
-        type="password"
         label="确认密码:"
         prop="login_password2"
         class="login-password"
       >
         <el-input
+          type="password"
           v-model="model.login_password2"
           placeholder="请再次输入密码"
         ></el-input>
@@ -177,6 +177,7 @@ export default {
       admin_role: [], // 当前绑定的角色id
       roleData: [], // 角色数据
       old_name: '',
+      old_account: '',
       loading: false, // 加载动画
       // 表单验证规则
       rules: {
@@ -227,22 +228,9 @@ export default {
     // 初始化内容
     async init() {
       this.loading = true;
-      this.id && (await this.getInfo()); // 有id就执行函数
       await this.getAllRole();
+      this.id && (await this.getInfo()); // 有id就执行函数
       this.loading = false;
-    },
-
-    // 获取要编辑的信息
-    async getInfo() {
-      const res = await this.$request({
-        url: '/roleInfo',
-        params: {
-          role_id: this.id
-        }
-      });
-      this.model = res.info;
-      this.old_name = res.info.role_name;
-      this.router_default_checked = res.router_rights;
     },
 
     // 获取所有角色
@@ -250,6 +238,28 @@ export default {
       const res = await this.$request({ url: '/getAllRole' });
       this.roleData = res.data.map((v) => {
         v.checked = false;
+        return v;
+      });
+    },
+
+    // 获取要编辑的信息
+    async getInfo() {
+      const res = await this.$request({
+        url: '/adminInfo',
+        params: {
+          admin_id: this.id
+        }
+      });
+
+      res.info.login_password2 = res.info.login_password;
+
+      this.model = res.info;
+
+      this.old_name = res.info.admin_name;
+      this.old_account = res.info.login_account;
+
+      this.roleData = this.roleData.map((v) => {
+        v.checked = res.roles.some((roleId) => v.role_id === roleId);
         return v;
       });
     },
@@ -271,17 +281,27 @@ export default {
           return valid; // 表单验证错误则阻断后面代码
         }
 
-        // 编辑时名称不变 则不执行查询是否同名称
-        if (!(this.old_name && this.model.role_name == this.old_name)) {
-          // 查询是否同名称
+        // 编辑时名称和账号不变 则不执行查询是否重复
+        if (
+          !(
+            this.old_name &&
+            this.model.admin_name == this.old_name &&
+            this.old_account &&
+            this.model.login_account == this.old_account
+          )
+        ) {
+          // 查询是否重复
           const isRepeatName = await this.$request({
-            url: '/isRepeatAdminName',
-            params: { admin_name: this.model.admin_name }
+            url: '/isRepeatAdmin',
+            params: {
+              admin_name: this.model.admin_name,
+              login_account: this.model.login_account
+            }
           });
 
-          // 如果存在同名称的分类 阻断后面代码
+          // 如果存在重复的管理员 阻断后面代码
           if (isRepeatName.msg) {
-            this.$message({ message: '此用户已存在', type: 'error' });
+            this.$message({ message: '用户名或账号已存在', type: 'error' });
             this.loading = false;
             return false;
           }
@@ -301,7 +321,7 @@ export default {
           avatar
         } = this.model;
 
-        const url = id ? '/modifyRole' : '/addAdminUser'; // 修改角色 or 创建角色
+        const url = id ? '/modifyAdminUser' : '/addAdminUser'; // 修改角色 or 创建角色
         const method = id ? 'post' : 'put';
         const data = {
           admin_name,
@@ -312,14 +332,14 @@ export default {
           roles
         };
 
-        if (id) data.role_id = id;
+        if (id) data.admin_id = id;
 
         const res = await this.$request({ url, method, data });
 
         if (res.code == 200) {
           const message = id ? '修改成功' : '创建成功';
           this.$message({ message, type: 'success', center: true });
-          this.$router.push({ name: 'adminRoles' });
+          this.$router.push({ name: 'sysAdmins' });
         } else {
           const message = id ? '修改失败' : '创建失败';
           this.$message({ message, type: 'error', center: true });

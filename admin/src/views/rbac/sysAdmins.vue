@@ -55,11 +55,17 @@
             type="text"
             icon="el-icon-edit"
             v-if="!row.admin_root || role_root"
+            @click="editAdminUser(row.admin_id)"
           >
             编辑
           </el-button>
           <span v-else> 无权限 </span>
-          <el-button type="text" icon="el-icon-set-up" v-if="!row.admin_root">
+          <el-button
+            type="text"
+            icon="el-icon-set-up"
+            v-if="!row.admin_root"
+            @click="changeAdminState(row.admin_id, row.status)"
+          >
             {{ row.status ? '冻结' : '启用' }}
           </el-button>
           <el-button type="text" icon="el-icon-delete" v-if="!row.admin_root">
@@ -99,8 +105,29 @@ export default {
       this.loading = false;
     },
 
-    // 删除角色
-    delRole(role_id) {
+    // 编辑管理员
+    editAdminUser(id) {
+      this.$router.push({ name: 'editSysAdmin', params: { id } });
+    },
+
+    async changeAdminState(admin_id, status) {
+      const res = await this.$request({
+        url: '/changeAdminState',
+        method: 'post',
+        data: { admin_id, status }
+      });
+
+      if (res.code == 200) {
+        const message = status == 1 ? '冻结成功' : '启用成功';
+        this.$message({ message, type: 'success', center: true });
+        this.getSysAdmins();
+      } else {
+        const massage = status == 1 ? '冻结失败' : '启用失败';
+        this.$message({ message, type: 'error', center: true });
+      }
+    },
+    // 删除管理员
+    delAdmin(admin_id) {
       this.$confirm('删除此角色会使关联此角色的用户失去此角色的权限', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',

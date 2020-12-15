@@ -26,9 +26,11 @@ router.put('/addPermissionRouter', permission.addPermissionRouter); // 添加权
 // 管理员
 router.get('/getSysAdmins', sysAdmin.getSysAdmins); // 获取管理员
 router.get('/getAllRole', sysAdmin.getAllRole); // 获取所有角色
-router.get('/isRepeatAdminName', sysAdmin.queryRepeatName); // 查询是否有重名管理员用户
+router.get('/isRepeatAdmin', sysAdmin.queryRepeat); // 查询是否有重复管理员用户
 router.put('/addAdminUser', sysAdmin.addAdminUser); // 新建管理员用户
-
+router.get('/adminInfo', sysAdmin.adminInfo); // 获取管理员信息用于编辑
+router.post('/modifyAdminUser', sysAdmin.modifyAdminUser); // 修改管理员
+router.post('/changeAdminState', sysAdmin.changeAdminState); // 修改管理员状态
 
 
 

@@ -1,28 +1,25 @@
 const dbConfig = require('../config/dbconfig');
 module.exports = {
     // 获取所有分类
-    categoryAll(req, res, next) {
-        const sql = `select * from category;`; // sql语句
-        const sqlArr = []; // 放进占位符的变量 
-        const callback = (err, data) => {
-            if (err) {
-                const responseData = {
-                    code: 500,
-                    msg: 'error'
-                };
-                res.send(responseData);
-                return console.log(err);
-            }
+    async categoryAll(req, res, next) {
+        try {
+            const data = await dbConfig.sqlConnect(`select * from category;`, []);
+
             const responseData = {
                 code: 200,
                 data
             };
             res.send(responseData);
+        } catch (err) {
+            const responseData = {
+                code: 500,
+                msg: 'error'
+            };
+            res.send(responseData);
         }
-        dbConfig.sqlConnect(sql, sqlArr, callback);
     },
     // 获取分类列表
-    getCategoryList(req, res, next) {
+    async getCategoryList(req, res, next) {
         let { keyword, pageSize, current } = req.query;
 
         pageSize = parseFloat(pageSize);
@@ -30,19 +27,13 @@ module.exports = {
 
         const start = current * pageSize - pageSize;
         const length = pageSize;
-        const sql = `select count(*) from category where binary category_name like ? or id like ?;`; // sql语句
-        const sqlArr = [`%${keyword}%`, `%${keyword}%`]; // 放进占位符的变量 
-        const callback = (err, countData) => {
-            if (err) {
-                const responseData = {
-                    code: 500,
-                    msg: 'error'
-                }
-                res.send(responseData);
-                return console.log(err);
-            }
+
+        try {
+            // 获取总条数 count(*)
+            const countData = await dbConfig.sqlConnect(`select count(*) from category where binary category_name like ? or id like ?;`, [`%${keyword}%`, `%${keyword}%`]);
             const total = countData[0]['count(*)'];
 
+            // console.log(countData);
             // 当一条数据都没有时 不执行下方查询代码 节省性能
             if (!total) {
                 const responseData = {
@@ -55,49 +46,36 @@ module.exports = {
             }
 
             // 获取模糊查询出来的数据
-            const sql1 = `select * from category where binary category_name like ? or id like ? limit ?,?;`; // sql语句
-            const sqlArr1 = [`%${keyword}%`, `%${keyword}%`, start, length]; // 放进占位符的变量 
-            dbConfig.sqlConnect(sql1, sqlArr1, (err, data) => {
-                if (err) {
-                    const responseData = {
-                        code: 500,
-                        msg: 'error'
-                    }
-                    res.send(responseData);
-                    return console.log(err);
-                }
-                const responseData = {
-                    code: 200,
-                    data,
-                    total
-                }
-                res.send(responseData);
-            });
+            const data = await dbConfig.sqlConnect(`select * from category where binary category_name like ? or id like ? limit ?,?;`, [`%${keyword}%`, `%${keyword}%`, start, length]);
+            const responseData = {
+                code: 200,
+                data,
+                total
+            }
+            res.send(responseData);
+
+        } catch (err) {
+            const responseData = {
+                code: 500,
+                msg: 'error'
+            };
+            res.send(responseData);
         }
 
-        dbConfig.sqlConnect(sql, sqlArr, callback);
+
+
     },
     // 搜索分类
-    searchCategory(req, res, next) {
+    async searchCategory(req, res, next) {
         let { keyword, pageSize } = req.query;
-        console.log(pageSize);
 
         pageSize = parseFloat(pageSize);
-
         const length = pageSize;
-        const sql = `select count(*) from category where binary category_name like ? or id like ?;`; // sql语句
-        const sqlArr = [`%${keyword}%`, `%${keyword}%`]; // 放进占位符的变量 
-        const callback = (err, countData) => {
-            if (err) {
-                const responseData = {
-                    code: 500,
-                    msg: 'error'
-                }
-                res.send(responseData);
-                return console.log(err);
-            }
-            const total = countData[0]['count(*)'];
 
+        try {
+            const countData = await dbConfig.sqlConnect(`select count(*) from category where binary category_name like ? or id like ?;`, [`%${keyword}%`, `%${keyword}%`]);
+
+            const total = countData[0]['count(*)'];
             // 当一条数据都没有时 不执行下方查询代码 节省性能
             if (!total) {
                 const responseData = {
@@ -110,127 +88,163 @@ module.exports = {
             }
 
             // 获取模糊查询出来的数据
-            const sql1 = `select * from category where binary category_name like ? or id like ? limit ?;`; // sql语句
-            const sqlArr1 = [`%${keyword}%`, `%${keyword}%`, length]; // 放进占位符的变量 
-            dbConfig.sqlConnect(sql1, sqlArr1, (err, data) => {
-                if (err) {
-                    const responseData = {
-                        code: 500,
-                        msg: 'error'
-                    }
-                    res.send(responseData);
-                    return console.log(err);
-                }
-                const responseData = {
-                    code: 200,
-                    data,
-                    total
-                }
-                res.send(responseData);
-            });
+            const data = await dbConfig.sqlConnect(`select * from category where binary category_name like ? or id like ? limit ?;`, [`%${keyword}%`, `%${keyword}%`, length]);
+
+            const responseData = {
+                code: 200,
+                data,
+                total
+            }
+            res.send(responseData);
+
+        } catch (err) {
+            const responseData = {
+                code: 500,
+                msg: 'error'
+            }
+            res.send(responseData);
         }
 
-        dbConfig.sqlConnect(sql, sqlArr, callback);
+
     },
     // 查询是否有重名商品
-    queryRepeatName(req, res, next) {
+    async queryRepeatName(req, res, next) {
         const { category_name } = req.query;
-        const sql = `select * from category where category_name=?`;
-        const sqlArr = [category_name]; // 放进占位符的变量 
-        const callback = (err, data) => {
-            if (err) {
-                console.log(err);
-                const responseData = {
-                    code: 500,
-                    msg: 'error'
-                };
-                res.send(responseData);
-            } else {
-                const responseData = {
-                    code: 200,
-                    msg: data.length > 0
-                };
-                res.send(responseData);
-            }
-        }
 
-        dbConfig.sqlConnect(sql, sqlArr, callback);
+        try {
+            const data = await dbConfig.sqlConnect(`select * from category where category_name=?`, [category_name]);
+            const responseData = {
+                code: 200,
+                msg: data.length > 0
+            };
+            res.send(responseData);
+        } catch (err) {
+            const responseData = {
+                code: 500,
+                msg: 'error'
+            };
+            res.send(responseData);
+        }
     },
+
     // 新建分类
-    addCategory(req, res, next) {
+    async addCategory(req, res, next) {
         const { category_name } = req.body;
-        const sql = `insert into ?? (??) values(?);`; // sql语句
-        const sqlArr = ['category', 'category_name', category_name]; // 放进占位符的变量
-        const callback = (err, data) => {
-            if (err) {
-                console.log('新建分类：', err);
-            } else {
-                const responseData = {
-                    code: 200,
-                    msg: '添加分类成功'
-                }
-                res.send(responseData);
-            }
+
+        if (!category_name) {
+            const responseData = {
+                code: 400,
+                msg: 'miss param' // 缺少参数
+            };
+
+            return res.send(responseData);
         }
 
-        dbConfig.sqlConnect(sql, sqlArr, callback);
+        try {
+            await dbConfig.sqlConnect(`insert into category (category_name) values(?);`, [category_name]);
+
+            const responseData = {
+                code: 200,
+                msg: 'create success'
+            }
+            res.send(responseData);
+        } catch (err) {
+
+            const responseData = {
+                code: 500,
+                msg: 'error'
+            };
+            res.send(responseData);
+        }
     },
+
     // 获取一个分类
-    getCategory(req, res, next) {
+    async getCategory(req, res, next) {
         const { id } = req.query;
-        const sql = `select * from ?? where id=?;`; // sql语句
-        const sqlArr = ['category', id]; // 放进占位符的变量
-        const callback = (err, data) => {
-            if (err) {
-                console.log('获取一个分类：', err);
-            } else {
-                const responseData = {
-                    code: 200,
-                    data
-                }
-                res.send(responseData);
-            }
+
+        if (!id) {
+            const responseData = {
+                code: 400,
+                msg: 'miss param' // 缺少参数
+            };
+
+            return res.send(responseData);
         }
 
-        dbConfig.sqlConnect(sql, sqlArr, callback);
+        try {
+            const data = await dbConfig.sqlConnect(`select * from category where id=? limit 1;`, [id]);
+            const responseData = {
+                code: 200,
+                data
+            }
+            res.send(responseData);
+        } catch (err) {
+            const responseData = {
+                code: 500,
+                msg: 'error'
+            };
+            res.send(responseData);
+        }
     },
+
     // 修改分类
-    modifyCategory(req, res, next) {
+    async modifyCategory(req, res, next) {
         const { id, category_name } = req.body;
-        const sql = `update ?? set category_name=? where id=?;`; // sql语句
-        const sqlArr = ['category', category_name, id]; // 放进占位符的变量
-        const callback = (err, data) => {
-            if (err) {
-                console.log('修改分类：', err);
-            } else {
-                const responseData = {
-                    code: 200,
-                    msg: '修改分类成功'
-                }
-                res.send(responseData);
-            }
+
+        if (!(id && category_name)) {
+            const responseData = {
+                code: 400,
+                msg: 'miss param' // 缺少参数
+            };
+
+            return res.send(responseData);
         }
 
-        dbConfig.sqlConnect(sql, sqlArr, callback);
+        try {
+            await dbConfig.sqlConnect(`update category set category_name=? where id=?;`, [category_name, id]);
+            const responseData = {
+                code: 200,
+                msg: 'revise success'
+            }
+            res.send(responseData);
+        } catch (err) {
+            const responseData = {
+                code: 500,
+                msg: 'error'
+            };
+            res.send(responseData);
+        }
+
     },
+
     // 删除分类
-    delCategory(req, res, next) {
+    async delCategory(req, res, next) {
         const { id } = req.body;
-        const sql = `delete from ?? where id=?;`; // sql语句
-        const sqlArr = ['category', id]; // 放进占位符的变量
-        const callback = (err, data) => {
-            if (err) {
-                console.log('删除分类：', err);
-            } else {
-                const responseData = {
-                    code: 200,
-                    msg: '删除分类成功'
-                }
-                res.send(responseData);
-            }
+
+        if (!id) {
+            const responseData = {
+                code: 400,
+                msg: 'miss param' // 缺少参数
+            };
+
+            return res.send(responseData);
         }
 
-        dbConfig.sqlConnect(sql, sqlArr, callback);
+        try {
+            await dbConfig.sqlConnect(`delete from category where id=?;`, [id]);
+            const responseData = {
+                code: 200,
+                msg: 'delete success'
+            }
+            res.send(responseData);
+        } catch (err) {
+            const responseData = {
+                code: 500,
+                msg: 'error'
+            };
+            res.send(responseData);
+        }
+
     },
 
 }
