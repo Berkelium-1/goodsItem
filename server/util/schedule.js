@@ -11,30 +11,25 @@ module.exports = {
         const time = '* 30 3 * * *'; // 设置时间 为每天 03:30 
         // const time = '15 * * * * *'; // 测试 每 30 秒 
         // 设置定时任务
-        schedule.scheduleJob(time, () => {
-            const sql = `select * from uploadimgs where state=0;`; // sql语句
-            const sqlArr = []; // 放进占位符的变量
-            const callback = (err, data) => {
-                if (err) {
-                    console.log(err);
-                } else {
-                    for (let i = 0; i < data.length; i++) {
-                        // 删除图片
-                        fs.unlink(data[i]['path'], err => {
-                            if (err) {
-                                console.log(err);
-                            } else {
-                                // 删除 uploads 表的无用记录
-                                const delete_sql = `delete from uploadimgs where id=?;`; // sql语句
-                                const delete_sqlArr = [data[i]['id']]; // 放进占位符的变量
-                                dbConfig.sqlConnect(delete_sql, delete_sqlArr); // 执行
-                                // console.log('删除成功:', data[i]['path']);
-                            }
-                        });
-                    }
+        schedule.scheduleJob(time, async () => {
+            try {
+                await dbConfig.sqlConnect(`begin;`, []); // 开启事务
+                const data = await dbConfig.sqlConnect(`select * from uploadimgs where state=0;`, [], callback);
+                for (let i = 0; i < data.length; i++) {
+                    // 删除图片
+                    fs.unlink(data[i]['path'], err => {
+                        if (err) throw new Error('delete imgs error!');
+                        // 删除 uploads 表的无用记录
+                        dbConfig.sqlConnect(`delete from uploadimgs where id=?;`, [data[i]['id']]); // 执行
+                    });
                 }
+                await dbConfig.sqlConnect(`commit;`, []); // 提交事务
+                console.log('delete imgs success!');
+            } catch (err) {
+                await dbConfig.sqlConnect('rollback;', []); // 回滚
+                console.log('delete imgs error!');
             }
-            dbConfig.sqlConnect(sql, sqlArr, callback);
+
         });
     }
 };

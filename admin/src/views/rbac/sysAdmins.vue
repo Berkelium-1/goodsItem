@@ -68,7 +68,12 @@
           >
             {{ row.status ? '冻结' : '启用' }}
           </el-button>
-          <el-button type="text" icon="el-icon-delete" v-if="!row.admin_root">
+          <el-button
+            type="text"
+            icon="el-icon-delete"
+            v-if="!row.admin_root"
+            @click="delAdmin(row.admin_id)"
+          >
             删除
           </el-button>
         </template>
@@ -128,16 +133,16 @@ export default {
     },
     // 删除管理员
     delAdmin(admin_id) {
-      this.$confirm('删除此角色会使关联此角色的用户失去此角色的权限', '提示', {
+      this.$confirm('删除此管理员账号？', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
       })
         .then(async () => {
           const res = await this.$request({
-            url: '/delRole',
+            url: '/delAdmin',
             method: 'delete',
-            data: { role_id }
+            data: { admin_id }
           });
           if (res.code == 200) {
             this.$message({ message: '删除成功', type: 'success' });
@@ -168,6 +173,9 @@ export default {
   }
   .el-table {
     margin-top: 20px;
+    img {
+      width: 80%;
+    }
   }
 }
 </style>

@@ -6,6 +6,7 @@ import request from '@/utils/request';
 const getDefaultState = () => {
     return {
         token: getToken() || '',
+        admin_id: null, // 用户ID
         name: '', // 用户名称
         avatar: '', // 用户头像
         router_roles: null, // 用户路由权限
@@ -23,6 +24,10 @@ const mutations = {
     // 设置 token 在状态里
     SET_TOKEN: (state, token) => {
         state.token = token;
+    },
+    // 设置用户ID 在状态里
+    SET_ADMIN_ID: (state, admin_id) => {
+        state.admin_id = admin_id;
     },
     // 设置用户名称 在状态里
     SET_NAME: (state, name) => {
@@ -75,14 +80,14 @@ const actions = {
                     return reject('验证失败，请重新登录');
                 }
 
-                const { admin_name, avatar, role_root } = response.user_info;
+                const { admin_id, admin_name, avatar, role_root } = response.user_info;
                 const { router_roles } = response;
 
+                commit('SET_ADMIN_ID', admin_id);
                 commit('SET_NAME', admin_name);
                 commit('SET_ROUTER_ROLE', router_roles);
                 commit('SET_AVATAR', avatar);
                 commit('SET_ROLE_ROOT', role_root);
-
 
                 resolve(response);
             }).catch(error => {

@@ -87,14 +87,14 @@ module.exports = {
     async addAdminUser(req, res, next) {
         const {
             admin_name,
-            admin_desc,
             login_account,
             login_password,
             avatar,
+            admin_desc,
             roles
         } = req.body;
 
-        if (!(admin_name && admin_desc && login_account && login_password)) {
+        if (!(admin_name && login_account && login_password && roles)) {
             const responseData = {
                 code: 400,
                 msg: 'miss param' // 缺少参数
@@ -108,11 +108,11 @@ module.exports = {
 
             const { insertId } = await dbConfig.sqlConnect(`insert into sys_admins (admin_name, admin_desc, login_account, login_password, avatar) values (?, ?, ?, ?, ?);`, [admin_name, admin_desc, login_account, login_password, avatar]); // 插入数据到管理员表
 
-            await dbConfig.sqlConnect(`update uploadimgs set state=1 where url=?;`, [avatar]); // 修改图片状态
+            avatar && await dbConfig.sqlConnect(`update uploadimgs set state=1 where url=?;`, [avatar]); // 如果有图片 修改图片状态
 
             for (let i = 0; i < roles.length; i++) {
                 const role_id = roles[i];
-                await dbConfig.sqlConnect(`insert into sys_admin_roles (admin_id, role_id) values (?, ?, ?, ?, ?);`, [insertId, role_id]); // 插入 管理员--角色（中间表）
+                await dbConfig.sqlConnect(`insert into sys_admin_roles (admin_id, role_id) values (?, ?);`, [insertId, role_id]); // 插入 管理员--角色（中间表）
             }
 
             await dbConfig.sqlConnect(`commit;`, []); // 提交事务
@@ -186,7 +186,15 @@ module.exports = {
         try {
             await dbConfig.sqlConnect(`begin;`, []); // 开启事务
 
+            const [avatar_data] = await dbConfig.sqlConnect(`select avatar from sys_admins where admin_id=? limit 1;`, [admin_id]); // 查询 管理员表 获取旧的图片
+
             await dbConfig.sqlConnect(`update sys_admins set admin_name=?, admin_desc=?, login_account=?, login_password=?, avatar=? where admin_id=?;`, [admin_name, admin_desc, login_account, login_password, avatar, admin_id]); // 修改 管理员表
+
+            // 如果有图片 且 图片有变化 修改图片状态
+            if (avatar && avatar !== avatar_data['avatar']) {
+                await dbConfig.sqlConnect(`update uploadimgs set state=1 where url=?;`, [avatar]);
+                await dbConfig.sqlConnect(`update uploadimgs set state=0 where url=?;`, [avatar_data['avatar']]);
+            }
 
             await dbConfig.sqlConnect(`delete from sys_admin_roles where admin_id=?;`, [admin_id]); // 删除原来的角色关联 管理员--角色（中间表）
 
@@ -251,50 +259,46 @@ module.exports = {
     },
 
     // 删除管理员
-    async delRole(req, res, next) {
-        const { role_id } = req.body;
+    async delAdmin(req, res, next) {
+        const { admin_id } = req.body;
 
-        try {
-            // 删除该角色所有的权限
-            await dbConfig.sqlConnect(`delete from role_rights where role_id=?;`, [role_id]); // 删除 角色--权限表（中间表）
-        } catch (err) {
+        if (!admin_id) {
             const responseData = {
-                code: 500,
-                msg: '清除权限出错'
+                code: 400,
+                msg: 'miss param' // 缺少参数
             };
-            res.send(responseData);
-            return false;
+
+            return res.send(responseData);
         }
 
         try {
-            // 删除该角色与管理员的关联
-            await dbConfig.sqlConnect(`delete from sys_admin_roles where role_id=?;`, [role_id]); // 删除 管理员--角色（中间表）
-        } catch (err) {
+            await dbConfig.sqlConnect(`begin;`, []); // 开启事务
+
+            const [{ avatar }] = await dbConfig.sqlConnect(`select avatar from sys_admins where admin_id=? limit 1;`, [admin_id]); // 查询 管理员表 获取图片
+
+            await dbConfig.sqlConnect(`update uploadimgs set state=0 where url=?;`, [avatar]); // 修改图片状态
+
+            // 删除该管理员
+            await dbConfig.sqlConnect(`delete from sys_admins where admin_id=?;`, [admin_id]); // 删除 管理员表
+
+            // 删除该管理员与角色的关联
+            await dbConfig.sqlConnect(`delete from sys_admin_roles where admin_id=?;`, [admin_id]); // 删除 管理员--角色（中间表）
+
+            await dbConfig.sqlConnect(`commit;`, []); // 提交事务
+
             const responseData = {
-                code: 500,
-                msg: '清除管理与角色出错,但权限已经清除'
+                code: 200,
+                msg: 'delete success'
             };
             res.send(responseData);
-            return false;
-        }
-
-        try {
-            // 删除该角色
-            await dbConfig.sqlConnect(`delete from admin_roles where role_id=?;`, [role_id]); // 删除 角色表间表）
         } catch (err) {
+            await dbConfig.sqlConnect('rollback;', []); // 回滚
+
             const responseData = {
                 code: 500,
-                msg: '删除角色出错,但已清除权限和管理的联系'
+                msg: 'error'
             };
             res.send(responseData);
-            return false;
         }
-
-
-        const responseData = {
-            code: 200,
-            msg: '删除成功'
-        };
-        res.send(responseData);
     }
 };

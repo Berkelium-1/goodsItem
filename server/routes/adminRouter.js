@@ -23,6 +23,7 @@ router.get('/getInfo', login.getInfo); // 获取信息
 router.get('/permissionRouter', permission.permissionRouter); // 获取权限路由 path
 router.put('/addPermissionRouter', permission.addPermissionRouter); // 添加权限路由
 
+
 // 管理员
 router.get('/getSysAdmins', sysAdmin.getSysAdmins); // 获取管理员
 router.get('/getAllRole', sysAdmin.getAllRole); // 获取所有角色
@@ -31,7 +32,7 @@ router.put('/addAdminUser', sysAdmin.addAdminUser); // 新建管理员用户
 router.get('/adminInfo', sysAdmin.adminInfo); // 获取管理员信息用于编辑
 router.post('/modifyAdminUser', sysAdmin.modifyAdminUser); // 修改管理员
 router.post('/changeAdminState', sysAdmin.changeAdminState); // 修改管理员状态
-
+router.delete('/delAdmin', sysAdmin.delAdmin); // 删除管理员
 
 
 // 角色

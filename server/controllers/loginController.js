@@ -123,9 +123,8 @@ module.exports = {
 
 
         // 管理员表验证是否有此账号
-        const sql = `select admin_id, admin_name, login_account, status, avatar from sys_admins where admin_id=? and admin_name=? and login_account=?;`; // 查询管理员表
-        const sqlArr = [admin_id, admin_name, login_account]; // 放进占位符的变量 
-        const sys_admins_data = await dbConfig.sqlConnect(sql, sqlArr);
+        const sql = `select admin_id, admin_name, login_account, status, avatar from sys_admins where admin_id=? and admin_name=? and login_account=? limit 1;`; // 查询管理员表
+        const sys_admins_data = await dbConfig.sqlConnect(sql, [admin_id, admin_name, login_account]);
 
         if (sys_admins_data.length == 0) {
             const responseData = {
@@ -136,7 +135,7 @@ module.exports = {
             return false;
         }
 
-        const user_info = sys_admins_data[0];
+        const [user_info] = sys_admins_data;
         user_info.role_name = [];
 
         const sys_admin_roles_data = await dbConfig.sqlConnect(`select role_id from sys_admin_roles where admin_id=?;`, [admin_id]); // 查询 管理员--角色（中间表）

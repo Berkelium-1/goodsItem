@@ -1,7 +1,6 @@
 // store/permission.js
 import { asyncRouterMap, constantRouterMap } from '@/router';
 const permission = {
-
     state: {
         routers: constantRouterMap,
         addRouters: [],
@@ -17,16 +16,18 @@ const permission = {
     actions: {
         // 生成路由
         GenerateRoutes({ commit }, data) {
-            return new Promise(resolve => {
-                const { roles, root } = data; // roles是个数组
+            const asycnRouter = JSON.parse(JSON.stringify(asyncRouterMap)); // 不影响原路由文件
 
+            return new Promise(resolve => {
+
+                const { roles, root } = data; // roles是个数组
                 if (root) { // 如果有最高权限
-                    commit('SET_ROUTERS', asyncRouterMap);
+                    commit('SET_ROUTERS', asycnRouter);
                     resolve();
                     return root;
                 }
 
-                const accessedRouters = asyncRouterMap.filter(v => {
+                const accessedRouters = asycnRouter.filter(v => {
                     if (v.path == '*' || /^http(s?):\/\//.test(v.path)) { // 404 重定向 或者 外部链接
                         return true;
                     }

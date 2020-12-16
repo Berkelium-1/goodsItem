@@ -10,7 +10,7 @@ Target Server Type    : MYSQL
 Target Server Version : 80021
 File Encoding         : 65001
 
-Date: 2020-12-15 17:58:28
+Date: 2020-12-16 11:51:17
 */
 
 SET FOREIGN_KEY_CHECKS=0;
@@ -132,7 +132,7 @@ CREATE TABLE `right_list` (
   `right_type` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '权限类型',
   `second_menu_id` int DEFAULT NULL COMMENT '二级菜单id 关联二级菜单表',
   PRIMARY KEY (`right_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=24 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='所有权限列表';
+) ENGINE=InnoDB AUTO_INCREMENT=26 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='所有权限列表';
 
 -- ----------------------------
 -- Records of right_list
@@ -150,6 +150,8 @@ INSERT INTO `right_list` VALUES ('20', null, null, 'router', '47');
 INSERT INTO `right_list` VALUES ('21', null, null, 'router', '48');
 INSERT INTO `right_list` VALUES ('22', null, null, 'router', '49');
 INSERT INTO `right_list` VALUES ('23', null, null, 'router', '50');
+INSERT INTO `right_list` VALUES ('24', null, null, 'router', '51');
+INSERT INTO `right_list` VALUES ('25', null, null, 'router', '52');
 
 -- ----------------------------
 -- Table structure for role_rights
@@ -184,7 +186,7 @@ CREATE TABLE `second_menu` (
   `redirect` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
   `title` varchar(50) DEFAULT NULL,
   PRIMARY KEY (`second_menu_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=51 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='二级菜单表';
+) ENGINE=InnoDB AUTO_INCREMENT=53 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='二级菜单表';
 
 -- ----------------------------
 -- Records of second_menu
@@ -202,6 +204,8 @@ INSERT INTO `second_menu` VALUES ('47', '7', 'articleList', null, '文章列表'
 INSERT INTO `second_menu` VALUES ('48', '1', 'addAdminRole', null, '新建角色');
 INSERT INTO `second_menu` VALUES ('49', '1', 'editAdminRole/:id', null, '编辑角色');
 INSERT INTO `second_menu` VALUES ('50', '1', 'sysAdmins', null, '管理员列表');
+INSERT INTO `second_menu` VALUES ('51', '1', 'addSysAdmin', null, '新建用户');
+INSERT INTO `second_menu` VALUES ('52', '1', 'editSysAdmin/:id', null, '编辑用户');
 
 -- ----------------------------
 -- Table structure for sys_admins
@@ -218,13 +222,14 @@ CREATE TABLE `sys_admins` (
   `latest_time` datetime DEFAULT NULL COMMENT '最近登录的时间',
   `admin_root` int NOT NULL DEFAULT '0' COMMENT '0 普通 1 最高级',
   PRIMARY KEY (`admin_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='管理员表';
+) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='管理员表';
 
 -- ----------------------------
 -- Records of sys_admins
 -- ----------------------------
-INSERT INTO `sys_admins` VALUES ('1', 'root', null, '1922906183', '123456', '1', 'http://oss.fsfq.net/data/img/20180309bt5rn1520601530.jpg', '2020-12-15 09:40:48', '1');
-INSERT INTO `sys_admins` VALUES ('2', 'putong', null, '2225710499', '123456', '1', 'http://oss.fsfq.net/data/img/20180309bt5rn1520601530.jpg', '2020-12-11 09:50:10', '0');
+INSERT INTO `sys_admins` VALUES ('1', 'root', '最高管理', '1922906183', '123456', '1', 'http://localhost:3000/public/img/068b1a552e411ce0358caf278193cc2e', '2020-12-16 11:02:12', '1');
+INSERT INTO `sys_admins` VALUES ('2', 'putong', '123', '2225710499', '123456', '1', 'http://localhost:3000/public/img/5873a6f8b4d28c4756aebf94474df043', '2020-12-16 11:02:08', '0');
+INSERT INTO `sys_admins` VALUES ('12', '123', '', '2696095097', '123456', '1', 'http://localhost:3000/public/img/66345fffc5e1c9070270daa2075e94a3', '2020-12-16 10:24:54', '0');
 
 -- ----------------------------
 -- Table structure for sys_admin_roles
@@ -235,13 +240,15 @@ CREATE TABLE `sys_admin_roles` (
   `admin_id` int NOT NULL COMMENT '管理员id 关联管理员表',
   `role_id` int NOT NULL COMMENT '角色id 关联角色表',
   PRIMARY KEY (`adnin_role_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='管理员--角色（中间表）';
+) ENGINE=InnoDB AUTO_INCREMENT=24 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='管理员--角色（中间表）';
 
 -- ----------------------------
 -- Records of sys_admin_roles
 -- ----------------------------
-INSERT INTO `sys_admin_roles` VALUES ('1', '1', '1');
-INSERT INTO `sys_admin_roles` VALUES ('3', '2', '2');
+INSERT INTO `sys_admin_roles` VALUES ('20', '2', '2');
+INSERT INTO `sys_admin_roles` VALUES ('21', '1', '1');
+INSERT INTO `sys_admin_roles` VALUES ('22', '12', '2');
+INSERT INTO `sys_admin_roles` VALUES ('23', '12', '6');
 
 -- ----------------------------
 -- Table structure for uploadimgs
@@ -254,34 +261,19 @@ CREATE TABLE `uploadimgs` (
   `createtime` datetime NOT NULL COMMENT '上传时间',
   `state` int NOT NULL DEFAULT '0' COMMENT '使用状态：0未使用，1使用中',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=45 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='图片上传表';
+) ENGINE=InnoDB AUTO_INCREMENT=53 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='图片上传表';
 
 -- ----------------------------
 -- Records of uploadimgs
 -- ----------------------------
-INSERT INTO `uploadimgs` VALUES ('18', 'G:\\lhp study\\goodsItem\\server\\public\\img\\1f7a75e6e21eba04dd8b3afd367322ad', 'http://localhost:3000/public/img/1f7a75e6e21eba04dd8b3afd367322ad', '2020-11-23 10:26:33', '0');
-INSERT INTO `uploadimgs` VALUES ('19', 'G:\\lhp study\\goodsItem\\server\\public\\img\\075589984d1a36cd4cd538fcfd0cd5cc', 'http://localhost:3000/public/img/075589984d1a36cd4cd538fcfd0cd5cc', '2020-11-23 10:52:31', '0');
-INSERT INTO `uploadimgs` VALUES ('20', 'G:\\lhp study\\goodsItem\\server\\public\\img\\262fecd144f2b1d20ecc729b9ddbfa52', 'http://localhost:3000/public/img/262fecd144f2b1d20ecc729b9ddbfa52', '2020-11-23 10:52:34', '0');
-INSERT INTO `uploadimgs` VALUES ('21', 'G:\\lhp study\\goodsItem\\server\\public\\img\\0ab060f8a786ca2b0124c04f8a7dd718', 'http://localhost:3000/public/img/0ab060f8a786ca2b0124c04f8a7dd718', '2020-11-23 10:52:36', '0');
-INSERT INTO `uploadimgs` VALUES ('23', 'G:\\lhp study\\goodsItem\\server\\public\\img\\edd027db6ccccbf6aac1170e06051479', 'http://localhost:3000/public/img/edd027db6ccccbf6aac1170e06051479', '2020-11-23 10:55:10', '0');
-INSERT INTO `uploadimgs` VALUES ('24', 'G:\\lhp study\\goodsItem\\server\\public\\img\\0e8638616c426963b9412552822c27c0', 'http://localhost:3000/public/img/0e8638616c426963b9412552822c27c0', '2020-11-23 10:57:27', '0');
-INSERT INTO `uploadimgs` VALUES ('25', 'G:\\lhp study\\goodsItem\\server\\public\\img\\70dc7bef8a642f9386a07aa5a8d0f0cc', 'http://localhost:3000/public/img/70dc7bef8a642f9386a07aa5a8d0f0cc', '2020-11-23 11:07:06', '0');
-INSERT INTO `uploadimgs` VALUES ('26', 'G:\\lhp study\\goodsItem\\server\\public\\img\\ef3a4b7bf87e4e7c5caa61fa5a7448c5', 'http://localhost:3000/public/img/ef3a4b7bf87e4e7c5caa61fa5a7448c5', '2020-11-23 11:07:22', '0');
-INSERT INTO `uploadimgs` VALUES ('27', 'G:\\lhp study\\goodsItem\\server\\public\\img\\9ca2e5e565dfe7a2320b271dda3af795', 'http://localhost:3000/public/img/9ca2e5e565dfe7a2320b271dda3af795', '2020-11-23 11:07:32', '0');
 INSERT INTO `uploadimgs` VALUES ('28', 'G:\\lhp study\\goodsItem\\server\\public\\img\\99cb8d7a4a5a39874408ebe5957f3723', 'http://localhost:3000/public/img/99cb8d7a4a5a39874408ebe5957f3723', '2020-11-23 11:28:06', '1');
-INSERT INTO `uploadimgs` VALUES ('29', 'G:\\lhp study\\goodsItem\\server\\public\\img\\da6f96198d1f7e788633cc3f8a2af6c2', 'http://localhost:3000/public/img/da6f96198d1f7e788633cc3f8a2af6c2', '2020-11-23 11:38:01', '0');
-INSERT INTO `uploadimgs` VALUES ('30', 'G:\\lhp study\\goodsItem\\server\\public\\img\\e0b65a353b8c108a4c91cb35a861888b', 'http://localhost:3000/public/img/e0b65a353b8c108a4c91cb35a861888b', '2020-11-23 11:38:05', '0');
-INSERT INTO `uploadimgs` VALUES ('31', 'G:\\lhp study\\goodsItem\\server\\public\\img\\d0e5ee471d3d33894641160cc0420397', 'http://localhost:3000/public/img/d0e5ee471d3d33894641160cc0420397', '2020-11-23 11:38:07', '0');
-INSERT INTO `uploadimgs` VALUES ('32', 'G:\\lhp study\\goodsItem\\server\\public\\img\\f8bdc0b3b3ca3db23c30683d4821dd3e', 'http://localhost:3000/public/img/f8bdc0b3b3ca3db23c30683d4821dd3e', '2020-11-23 11:38:09', '0');
-INSERT INTO `uploadimgs` VALUES ('33', 'G:\\lhp study\\goodsItem\\server\\public\\img\\9bc7bc61a7bf6e4a8332fff5397063ee', 'http://localhost:3000/public/img/9bc7bc61a7bf6e4a8332fff5397063ee', '2020-11-23 11:38:11', '0');
-INSERT INTO `uploadimgs` VALUES ('34', 'G:\\lhp study\\goodsItem\\server\\public\\img\\38b80042f73c613443a2469e2407a08f', 'http://localhost:3000/public/img/38b80042f73c613443a2469e2407a08f', '2020-11-23 11:38:15', '0');
 INSERT INTO `uploadimgs` VALUES ('35', 'G:\\lhp study\\goodsItem\\server\\public\\img\\8243941f79f2e5adc75a3a3e1ad0626d', 'http://localhost:3000/public/img/8243941f79f2e5adc75a3a3e1ad0626d', '2020-11-23 11:43:06', '1');
-INSERT INTO `uploadimgs` VALUES ('36', 'G:\\lhp study\\goodsItem\\server\\public\\img\\c775b66982a056a93b4f298ba7de4ec5', 'http://localhost:3000/public/img/c775b66982a056a93b4f298ba7de4ec5', '2020-11-23 16:38:54', '0');
 INSERT INTO `uploadimgs` VALUES ('37', 'G:\\lhp study\\goodsItem\\server\\public\\img\\7d58cd8e2d318f254f906cbde7e6044f', 'http://localhost:3000/public/img/7d58cd8e2d318f254f906cbde7e6044f', '2020-11-23 16:39:59', '1');
-INSERT INTO `uploadimgs` VALUES ('38', 'G:\\lhp study\\goodsItem\\server\\public\\img\\b3a0b95e302dabf611a0c7b60de214b0', 'http://localhost:3000/public/img/b3a0b95e302dabf611a0c7b60de214b0', '2020-11-24 09:49:04', '0');
-INSERT INTO `uploadimgs` VALUES ('39', 'G:\\lhp study\\goodsItem\\server\\public\\img\\816f343d8c62185a893b2084fb41b61d', 'http://localhost:3000/public/img/816f343d8c62185a893b2084fb41b61d', '2020-11-24 09:49:22', '0');
-INSERT INTO `uploadimgs` VALUES ('40', 'G:\\lhp study\\goodsItem\\server\\public\\img\\622726d5bb42c96aaffaecf4cbc121d8', 'http://localhost:3000/public/img/622726d5bb42c96aaffaecf4cbc121d8', '2020-11-24 09:51:48', '0');
-INSERT INTO `uploadimgs` VALUES ('41', 'G:\\lhp study\\goodsItem\\server\\public\\img\\5d80b0a88aad0ef0626cdd00f295da20', 'http://localhost:3000/public/img/5d80b0a88aad0ef0626cdd00f295da20', '2020-11-24 10:02:57', '0');
 INSERT INTO `uploadimgs` VALUES ('42', 'G:\\lhp study\\goodsItem\\server\\public\\img\\5b561d5837c910ab52b47dc118e17983', 'http://localhost:3000/public/img/5b561d5837c910ab52b47dc118e17983', '2020-11-24 10:04:15', '1');
 INSERT INTO `uploadimgs` VALUES ('43', 'G:\\lhp study\\goodsItem\\server\\public\\img\\52e46bff0901bc0f4a99bf6f54078b2c', 'http://localhost:3000/public/img/52e46bff0901bc0f4a99bf6f54078b2c', '2020-11-24 11:26:07', '1');
-INSERT INTO `uploadimgs` VALUES ('44', 'G:\\lhp study\\goodsItem\\server\\public\\img\\c2c085dd24ad1097f44388a8441c6ebb', 'http://localhost:3000/public/img/c2c085dd24ad1097f44388a8441c6ebb', '2020-12-07 16:20:12', '0');
+INSERT INTO `uploadimgs` VALUES ('46', 'G:\\lhp study\\goodsItem\\server\\public\\img\\fe4813568ed830a604bbe7fd26b832c2', 'http://localhost:3000/public/img/fe4813568ed830a604bbe7fd26b832c2', '2020-12-16 09:34:49', '0');
+INSERT INTO `uploadimgs` VALUES ('47', 'G:\\lhp study\\goodsItem\\server\\public\\img\\53ff3a6d607ec85e48c3d0a29126d59f', 'http://localhost:3000/public/img/53ff3a6d607ec85e48c3d0a29126d59f', '2020-12-16 09:42:42', '1');
+INSERT INTO `uploadimgs` VALUES ('49', 'G:\\lhp study\\goodsItem\\server\\public\\img\\afcc40ffdb283bb0ac8b6b5268b3d16d', 'http://localhost:3000/public/img/afcc40ffdb283bb0ac8b6b5268b3d16d', '2020-12-16 10:03:52', '0');
+INSERT INTO `uploadimgs` VALUES ('50', 'G:\\lhp study\\goodsItem\\server\\public\\img\\5873a6f8b4d28c4756aebf94474df043', 'http://localhost:3000/public/img/5873a6f8b4d28c4756aebf94474df043', '2020-12-16 10:04:00', '1');
+INSERT INTO `uploadimgs` VALUES ('51', 'G:\\lhp study\\goodsItem\\server\\public\\img\\068b1a552e411ce0358caf278193cc2e', 'http://localhost:3000/public/img/068b1a552e411ce0358caf278193cc2e', '2020-12-16 10:08:46', '1');
+INSERT INTO `uploadimgs` VALUES ('52', 'G:\\lhp study\\goodsItem\\server\\public\\img\\66345fffc5e1c9070270daa2075e94a3', 'http://localhost:3000/public/img/66345fffc5e1c9070270daa2075e94a3', '2020-12-16 10:22:41', '1');

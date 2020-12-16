@@ -26,7 +26,7 @@ router.beforeEach(async (to, from, next) => {
             next({ path: '/' })
             NProgress.done();
         } else {
-            const hasGetUserInfo = store.getters.router_roles;
+            const hasGetUserInfo = store.getters.router_roles && store.getters.admin_id;
 
             if (!hasGetUserInfo) { // 没有用户信息
                 try {
@@ -37,6 +37,7 @@ router.beforeEach(async (to, from, next) => {
 
                     // 生成权限路由
                     await store.dispatch('GenerateRoutes', { roles, root });
+                    console.log(store.getters.addRouters);
 
                     // 添加权限路由表
                     router.addRoutes(store.getters.addRouters);

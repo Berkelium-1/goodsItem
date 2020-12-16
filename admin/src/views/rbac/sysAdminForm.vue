@@ -222,7 +222,7 @@ export default {
     this.init();
   },
   computed: {
-    ...mapGetters(['role_root'])
+    ...mapGetters(['role_root', 'admin_id'])
   },
   methods: {
     // 初始化内容
@@ -281,27 +281,38 @@ export default {
           return valid; // 表单验证错误则阻断后面代码
         }
 
-        // 编辑时名称和账号不变 则不执行查询是否重复
-        if (
-          !(
-            this.old_name &&
-            this.model.admin_name == this.old_name &&
-            this.old_account &&
-            this.model.login_account == this.old_account
-          )
-        ) {
+        // 编辑时名称不变 则不执行查询是否重复
+        if (!(this.old_name && this.model.admin_name == this.old_name)) {
           // 查询是否重复
           const isRepeatName = await this.$request({
             url: '/isRepeatAdmin',
             params: {
-              admin_name: this.model.admin_name,
+              admin_name: this.model.admin_name
+            }
+          });
+
+          // 如果存在重复的用户名 阻断后面代码
+          if (isRepeatName.msg) {
+            this.$message({ message: '用户名已存在', type: 'error' });
+            this.loading = false;
+            return false;
+          }
+        }
+
+        // 编辑时账号不变 则不执行查询是否重复
+        const old_account = this.old_account;
+        if (!(this.old_account && this.model.login_account == old_account)) {
+          // 查询是否重复
+          const isRepeatName = await this.$request({
+            url: '/isRepeatAdmin',
+            params: {
               login_account: this.model.login_account
             }
           });
 
-          // 如果存在重复的管理员 阻断后面代码
+          // 如果存在重复的账号 阻断后面代码
           if (isRepeatName.msg) {
-            this.$message({ message: '用户名或账号已存在', type: 'error' });
+            this.$message({ message: '账号已存在', type: 'error' });
             this.loading = false;
             return false;
           }
@@ -335,6 +346,12 @@ export default {
         if (id) data.admin_id = id;
 
         const res = await this.$request({ url, method, data });
+
+        // 如果编辑的是自己
+        if (id === this.admin_id) {
+          // 获取用户信息
+          await this.$store.dispatch('user/getInfo');
+        }
 
         if (res.code == 200) {
           const message = id ? '修改成功' : '创建成功';
